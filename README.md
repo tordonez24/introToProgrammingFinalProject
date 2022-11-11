@@ -15,7 +15,7 @@ A spinoff of 2048, which is a single player 2D matching game. The objective is t
 
 ### Installing
 
-Can be run in Visual Stuido Code
+Can be run in Visual Stuido Code;
 No modifications to files/folders needed
 
 ### Executing program
