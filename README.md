@@ -1,11 +1,10 @@
-# introToProgrammingFinalProject
-# Path Attack...
+# Project Title
 
-Using Djikstra's algorithm to get enemies to pass around walls.  
+2048 ______
 
 ## Description
 
-A top down 2d game where enemies chase the player around walls.  
+A spinoff of 2048, which is a single player 2d matching game. The objective is to combine identical tiles to eventually create _________.
 
 ## Getting Started
 
