@@ -4,7 +4,7 @@
 
 ## Description
 
-A spinoff of 2048, which is a single player 2d matching game. The objective is to combine identical tiles to eventually create boba. Although reaching boba is the goal of the game, it doesn't end there. Boba is equivalent to 2048 in the original, but the game ends at boba.
+A spinoff of 2048, which is a single player 2D matching game. The objective is to combine identical tiles to eventually create the final tile, boba. Boba is equivalent to 2048 in the original, but the game ends at boba.
 
 ## Getting Started
 
@@ -15,8 +15,8 @@ A spinoff of 2048, which is a single player 2d matching game. The objective is t
 
 ### Installing
 
-* How/where to download your program
-* Any modifications needed to be made to files/folders
+Can be run in Visual Stuido Code
+No modifications to files/folders needed
 
 ### Executing program
 
@@ -35,10 +35,8 @@ command to run if program contains helper info
 
 ## Authors
 
-Contributors names and contact info
-
-ex. Chris Cozort  
-ex. ccozort@bcp.org
+Tyler Ordonez
+tyler.m.ordonez@gmail.com
 
 ## Version History
 
@@ -50,7 +48,7 @@ ex. ccozort@bcp.org
 
 ## License
 
-This project is licensed under the [NAME HERE] License - see the LICENSE.md file for details
+This project is licensed under the MIT License - see the LICENSE file for details
 
 ## Acknowledgments
 
