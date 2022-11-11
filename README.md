@@ -1,10 +1,10 @@
 # Project Title
 
-2048 ______
+2048 Drinks
 
 ## Description
 
-A spinoff of 2048, which is a single player 2d matching game. The objective is to combine identical tiles to eventually create _________.
+A spinoff of 2048, which is a single player 2d matching game. The objective is to combine identical tiles to eventually create boba. Although reaching boba is the goal of the game, it doesn't end there. Boba is equivalent to 2048 in the original, but the game ends at boba.
 
 ## Getting Started
 
