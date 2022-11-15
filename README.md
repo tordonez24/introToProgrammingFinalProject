@@ -1,11 +1,10 @@
-# introToProgrammingFinalProject
-# Path Attack...
+# Project Title
 
-Using Djikstra's algorithm to get enemies to pass around walls.  
+2048 Drinks
 
 ## Description
 
-A top down 2d game where enemies chase the player around walls.  
+A spinoff of 2048, which is a single player 2D matching game. The objective is to combine identical tiles to eventually create the final tile, boba. Boba is equivalent to 2048 in the original, but the game ends at boba.
 
 ## Getting Started
 
@@ -16,8 +15,8 @@ A top down 2d game where enemies chase the player around walls.
 
 ### Installing
 
-* How/where to download your program
-* Any modifications needed to be made to files/folders
+Can be run in Visual Stuido Code;
+No modifications to files/folders needed
 
 ### Executing program
 
@@ -29,17 +28,15 @@ code blocks for commands
 
 ## Help
 
-Any advise for common problems or issues.
+Any advice for common problems or issues.
 ```
 command to run if program contains helper info
 ```
 
 ## Authors
 
-Contributors names and contact info
-
-ex. Chris Cozort  
-ex. ccozort@bcp.org
+Tyler Ordonez
+tyler.m.ordonez@gmail.com
 
 ## Version History
 
@@ -51,7 +48,7 @@ ex. ccozort@bcp.org
 
 ## License
 
-This project is licensed under the [NAME HERE] License - see the LICENSE.md file for details
+This project is licensed under the MIT License - see the LICENSE file for details
 
 ## Acknowledgments
 
