@@ -4,6 +4,7 @@ My final project is...
 
 '''
 Sources:
+I used w3schools to learn about machine learning libraries
 '''
 
 # imported libraries
