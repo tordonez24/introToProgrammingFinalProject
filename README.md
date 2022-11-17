@@ -10,8 +10,7 @@ A spinoff of Flappy Bird, which is a single player 2D game. The objective is to 
 
 ### Dependencies
 
-* Describe any prerequisites, libraries, OS version, etc., needed before installing program.
-* ex. Python 3.x, Pygame, etc.
+need to install Pygame
 
 ### Installing
 
