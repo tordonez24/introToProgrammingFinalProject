@@ -1,17 +1,16 @@
 # Project Title
 
-2048 Drinks
+Flappy Fish
 
 ## Description
 
-A spinoff of 2048, which is a single player 2D matching game. The objective is to combine identical tiles to eventually create the final tile, boba. Boba is equivalent to 2048 in the original, but the game ends at boba.
+A spinoff of Flappy Bird, which is a single player 2D game. The objective is to avoid the pillars that can kill you and get the highest possible score. Each pillar past gives you 1 point.
 
 ## Getting Started
 
 ### Dependencies
 
-* Describe any prerequisites, libraries, OS version, etc., needed before installing program.
-* ex. Python 3.x, Pygame, etc.
+need to install Pygame
 
 ### Installing
 
