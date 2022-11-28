@@ -17,9 +17,15 @@ import sys
 # created libraries
 import settings
 
-
 # global variables
 
 # utility functions
+
+# init pygame and create a window
+pg.init()
+pg.mixer.init()
+screen = pg.display.set_mode((WIDTH, HEIGHT))
+pg.display.set_caption("My Game...")
+clock = pg.time.Clock()
 
 # classes
