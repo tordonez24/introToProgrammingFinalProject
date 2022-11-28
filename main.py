@@ -9,13 +9,15 @@ https://www.askpython.com/python/examples/flappy-bird-game-in-python
 
 # imported libraries
 import pygame as pg
+import sys
+import time
 
 # built in libraries
 import random
-import sys
 
 # created libraries
-import settings
+from settings import *
+import os
 
 # global variables
 
@@ -29,3 +31,9 @@ pg.display.set_caption("My Game...")
 clock = pg.time.Clock()
 
 # classes
+
+# Game loop
+running = True
+if running == True:
+    # keep the loop running using clock
+    clock.tick(FPS)
