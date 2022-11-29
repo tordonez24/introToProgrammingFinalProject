@@ -104,6 +104,7 @@ class Game:
             self.all_sprites.draw(self.display_surface)
             pg.display.update()
             self.clock.tick(FPS)
-if __name__ == '__main__':
+running = True
+while running:
     game = Game()
     game.run()
