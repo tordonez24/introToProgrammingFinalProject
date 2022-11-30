@@ -86,7 +86,7 @@ class Ground(Sprite):
         self.image.blit(done1_image,(0,0))
         # draws fully sized image directly after fully sized image at (0,0) to create double background
         self.image.blit(done1_image,(done1_width,0))
-        # sets top left as (0,0) and places fullysized image there
+        # sets top left as (0,0) and places fully sized image there
         self.rect = self.image.get_rect(bottomleft = (0,HEIGHT))
         self.pos = pg.math.Vector2(self.rect.bottomleft)
 
