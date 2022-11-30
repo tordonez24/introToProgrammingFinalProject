@@ -42,24 +42,28 @@ clock = pg.time.Clock()
 class Background(Sprite):
     def __init__(self, groups,scale_factor):
         super().__init__(groups)
-        background_image = pg.image.load(os.path.join(img_folder, 'Background.jpg')).convert()
+        # loads background image
+        background_image = pg.image.load(os.path.join(img_folder, 'Background.jpg')).convert() 
         # gets height of original image and multiplies it by scale factor to get correct size to fit window
         done_height = background_image.get_height() * scale_factor
         # gets width of original image and multiplies it by scale factor to get correct size to fit window
         done_width = background_image.get_width() * scale_factor
-        # # fully sized image to be created twice
+        # fully sized image to be created twice
         done_image = pg.transform.scale(background_image,(done_width, done_height))
-
         # create surface twice as wide as original background image to make double background
         self.image = pg.Surface((done_width * 2, done_height))
+        # draws fully sized image at (0,0)
         self.image.blit(done_image,(0,0))
+        # draws fully sized image directly after fully sized image at (0,0) to create double background
         self.image.blit(done_image,(done_width,0))
 
         self.rect = self.image.get_rect(topleft = (0,0))
         self.pos = pg.math.Vector2(self.rect.topleft)
 
     def update(self, delta_time):
+        # determines speed of camera movement
         self.pos.x -= 200 * delta_time
+        # if centerx is less than 0, reset the positiion to centerx = 0
         if self.rect.centerx <= 0:
             self.pos.x = 0
         self.rect.x = round(self.pos.x)
@@ -104,7 +108,9 @@ class Game:
             self.all_sprites.draw(self.display_surface)
             pg.display.update()
             self.clock.tick(FPS)
+# makes while loop always run
 running = True
+# runs game class
 while running:
     game = Game()
     game.run()
