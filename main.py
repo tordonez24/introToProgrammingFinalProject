@@ -5,8 +5,10 @@ My final project is Flappy Fish. Flappy Fish is a spinoff of Flappy Bird, which 
 '''
 Sources:
 https://www.askpython.com/python/examples/flappy-bird-game-in-python
-https://www.geeksforgeeks.org/python-datetime-timedelta-function/
+https://www.youtube.com/watch?v=rWtfClpWSb8
 https://www.delftstack.com/howto/python-pygame/get_rect-pygame/
+https://www.geeksforgeeks.org/python-time-time-method/
+https://www.geeksforgeeks.org/python-datetime-timedelta-function/
 '''
 
 # imported libraries
@@ -40,6 +42,51 @@ clock = pg.time.Clock()
 
 # classes
 
+class Game:
+    def __init__(self):
+        # initializes all imported pygame modules
+        pg.init()
+        # creates instance of pg.display and returns it
+        self.display_surface = pg.display.set_mode((WIDTH,HEIGHT))
+        # displays title of game
+        pg.display.set_caption('Flappy Fish')
+        # time module/clock
+        self.clock = pg.time.Clock()
+        # create groups
+        self.all_sprites = pg.sprite.Group() # all existing sprite
+        self.collision_sprite = pg.sprite.Group() # floor and pipes (sprite that can be collided with)
+        # scale factor
+        background_height = pg.image.load(os.path.join(img_folder, 'background.jpg')).convert().get_height()
+        self.scale_factor = HEIGHT / background_height
+        # sprite setup
+        Background(self.all_sprites, self.scale_factor)
+        Ground(self.all_sprites, self.scale_factor)
+        self.fish = Fish(self.all_sprites, self.scale_factor / 25)
+    
+    # run method
+    def run(self):
+        previous_time = time.time()
+        # while loop
+        while True:
+            # gets delta time, which is the time between the current and previous frame
+            # it accounts for all framerates and makes it consistent by being multiplied by every movement in game
+            delta_time = time.time() - previous_time
+            previous_time = time.time()
+            # event for loop which quits the game when told to
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    pg.quit()
+                    sys.exit()
+                # if there is a click, the fish jumps
+                if event.type == pg.MOUSEBUTTONDOWN:
+                    self.fish.jump()
+            # updating pygame and calling the framrate
+            self.display_surface.fill('black')
+            self.all_sprites.update(delta_time) # updates sprites with delta time
+            self.all_sprites.draw(self.display_surface) # draws sprites
+            pg.display.update()
+            self.clock.tick(FPS)
+
 class Background(Sprite):
     def __init__(self, groups, scale_factor):
         super().__init__(groups)
@@ -60,7 +107,7 @@ class Background(Sprite):
         # sets top left as (0,0) and places fullysized image there
         self.rect = self.image.get_rect(topleft = (0,0))
         self.pos = pg.math.Vector2(self.rect.topleft)
-
+    # update method
     def update(self, delta_time):
         # determines speed of camera movement
         self.pos.x -= 200 * delta_time
@@ -89,7 +136,7 @@ class Ground(Sprite):
         # sets top left as (0,0) and places fully sized image there
         self.rect = self.image.get_rect(bottomleft = (0,HEIGHT))
         self.pos = pg.math.Vector2(self.rect.bottomleft)
-
+    # update method
     def update(self, delta_time):
         # determines speed of camera movement
         self.pos.x -= 200 * delta_time
@@ -98,47 +145,33 @@ class Ground(Sprite):
             self.pos.x = 0
         self.rect.x = round(self.pos.x)
 
-class Game:
-    def __init__(self):
-        # initializes all imported pygame modules
-        pg.init()
-        # creates instance of pg.display and returns it
-        self.display_surface = pg.display.set_mode((WIDTH,HEIGHT))
-        # displays title of game
-        pg.display.set_caption('Flappy Fish')
-        # time module/clock
-        self.clock = pg.time.Clock()
-
-        # create groups
-        self.all_sprites = pg.sprite.Group() # all existing sprite
-        self.collision_sprite = pg.sprite.Group() # floor and pipes (sprite that can be collided with)
-
-        # scale factor
-        background_height = pg.image.load(os.path.join(img_folder, 'background.jpg')).convert().get_height()
-        self.scale_factor = HEIGHT / background_height
-
-        # sprite setup
-        Background(self.all_sprites, self.scale_factor)
-        Ground(self.all_sprites, self.scale_factor)
-    
-    def run(self):
-        last_time = time.time()
-        # while loop
-        while True:
-            # delta time which accounts for different framrates
-            delta_time = time.time() - last_time
-            last_time = time.time()
-            # event for loop which quits the game when told to
-            for event in pg.event.get():
-                if event.type == pg.QUIT:
-                    pg.quit()
-                    sys.exit()
-            # updating pygame and calling the framrate
-            self.display_surface.fill('black')
-            self.all_sprites.update(delta_time) # updates sprites with delta time
-            self.all_sprites.draw(self.display_surface) # draws sprites
-            pg.display.update()
-            self.clock.tick(FPS)
+class Fish(Sprite):
+    def __init__(self, groups, scale_factor):
+        super().__init__(groups)
+        # loads fish image
+        fish_image = pg.image.load(os.path.join(img_folder, 'fish.png')).convert()
+        # scales fish image
+        scaled_surface = pg.transform.scale(fish_image,pg.math.Vector2(fish_image.get_size())* scale_factor)
+        self.image = scaled_surface
+        # makes starting position of image at midleft point by dividing width by 20 and height by 2 to get coordinates
+        self.rect = self.image.get_rect(midleft = (WIDTH / 20, HEIGHT / 2))
+        self.pos = pg.math.Vector2(self.rect.topleft)
+        # gravity and velocity
+        self.gravity = 500
+        self.direction = 0
+    # method for gravity
+    def grav(self, delta_time):
+        self.direction += self.gravity * delta_time
+        self.pos.y += self.direction * delta_time
+        self.rect.y = round(self.pos.y)
+    # method for jump mechanic
+    def jump(self):
+        self.direction = -300
+    # update method
+    def update(self, delta_time):
+        # create methods with delta time for movement
+        self.grav(delta_time)
+        
 # makes while loop always run
 running = True
 # runs game class by creating instance of game class and calling it through run()

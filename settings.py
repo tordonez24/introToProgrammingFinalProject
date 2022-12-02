@@ -1,4 +1,4 @@
 # initial game settings
-HEIGHT = 800
-WIDTH = 480
-FPS = 30
+HEIGHT = 900
+WIDTH = 700
+FPS = 60
