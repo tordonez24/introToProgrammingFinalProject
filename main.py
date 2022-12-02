@@ -9,6 +9,7 @@ https://www.youtube.com/watch?v=rWtfClpWSb8
 https://www.delftstack.com/howto/python-pygame/get_rect-pygame/
 https://www.geeksforgeeks.org/python-time-time-method/
 https://www.geeksforgeeks.org/python-datetime-timedelta-function/
+https://web.microsoftstream.com/video/b1bdbe8e-edc6-47a8-a2f9-c1aaf1b7930f
 '''
 
 # imported libraries
@@ -151,8 +152,8 @@ class Fish(Sprite):
         # loads fish image
         fish_image = pg.image.load(os.path.join(img_folder, 'fish.png')).convert()
         # scales fish image
-        scaled_surface = pg.transform.scale(fish_image,pg.math.Vector2(fish_image.get_size())* scale_factor)
-        self.image = scaled_surface
+        scaled_image = pg.transform.scale(fish_image,pg.math.Vector2(fish_image.get_size())* scale_factor)
+        self.image = scaled_image
         # makes starting position of image at midleft point by dividing width by 20 and height by 2 to get coordinates
         self.rect = self.image.get_rect(midleft = (WIDTH / 20, HEIGHT / 2))
         self.pos = pg.math.Vector2(self.rect.topleft)
