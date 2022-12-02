@@ -55,15 +55,23 @@ class Game:
         self.clock = pg.time.Clock()
         # create groups
         self.all_sprites = pg.sprite.Group() # all existing sprite
-        self.collision_sprite = pg.sprite.Group() # floor and pipes (sprite that can be collided with)
+        self.collision_sprites = pg.sprite.Group() # floor, pipes, and fish (sprite that can be collided with)
         # scale factor
         background_height = pg.image.load(os.path.join(img_folder, 'background.jpg')).convert().get_height()
         self.scale_factor = HEIGHT / background_height
         # sprite setup
         Background(self.all_sprites, self.scale_factor)
-        Ground(self.all_sprites, self.scale_factor)
+        Ground([self.all_sprites, self.collision_sprites], self.scale_factor/ 2)
         self.fish = Fish(self.all_sprites, self.scale_factor / 25)
-    
+        # timer
+        self.pipe_timer = pg.USEREVENT + 1
+        pg.time.set_timer(self.pipe_timer, 1400)
+    # collision method
+    def collisions(self):
+        hit = pg.sprite.spritecollide(self.fish, self.collision_sprites, False)
+        if hit:
+            pg.quit()
+            sys.exit()
     # run method
     def run(self):
         previous_time = time.time()
@@ -81,9 +89,12 @@ class Game:
                 # if there is a click, the fish jumps
                 if event.type == pg.MOUSEBUTTONDOWN:
                     self.fish.jump()
+                if event.type == self.pipe_timer:
+                    Pipe([self.all_sprites, self.collision_sprites], self.scale_factor / 1.55)
             # updating pygame and calling the framrate
             self.display_surface.fill('black')
             self.all_sprites.update(delta_time) # updates sprites with delta time
+            self.collisions()
             self.all_sprites.draw(self.display_surface) # draws sprites
             pg.display.update()
             self.clock.tick(FPS)
@@ -121,7 +132,7 @@ class Ground(Sprite):
     def __init__(self, groups, scale_factor):
         super().__init__(groups)
         # loads ground image
-        ground_image = pg.image.load(os.path.join(img_folder, 'ground.png')).convert() 
+        ground_image = pg.image.load(os.path.join(img_folder, 'ground.png')).convert()
         # gets height of original image and multiplies it by scale factor to get correct size to fit window
         done1_height = ground_image.get_height() * scale_factor
         # gets width of original image and multiplies it by scale factor to get correct size to fit window
@@ -145,6 +156,37 @@ class Ground(Sprite):
         if self.rect.centerx <= 0:
             self.pos.x = 0
         self.rect.x = round(self.pos.x)
+
+class Pipe(Sprite):
+    def __init__(self, groups, scale_factor):
+        super().__init__(groups)
+
+        # chooses random element from sequence; in this case, it chooses whether the pipe is on the top or bottom
+        orientation = choice(('bottom', 'top'))
+        # loads pipe image
+        pipe_image = pg.image.load(os.path.join(img_folder, 'pipe.png')).convert()
+        # scales pipe image
+        self.image = pg.transform.scale(pipe_image,pg.math.Vector2(pipe_image.get_size())* scale_factor)
+
+        x = WIDTH + randint (50,90)
+
+        if orientation == 'bottom':
+            y = HEIGHT + randint(10,50)
+            self.rect = self.image.get_rect(midbottom = (x,y))
+        else:
+            y = 0 + randint(-50, -10)
+            # makes a chance for pipe to be flipped vertically, but not horizontally
+            self.image = pg.transform.flip(self.image, False, True)
+            self.rect = self.image.get_rect(midtop = (x,y))
+        self.pos = pg.math.Vector2(self.rect.topleft)
+    # update method
+    def update(self, delta_time):
+        # speed of pipes
+        self.pos.x -= 200 * delta_time
+        self.rect.x = round(self.pos.x)
+        # if pipe goes 200 units to the left of screen, delete it
+        if self.rect.right <= -200:
+            self.kill()
 
 class Fish(Sprite):
     def __init__(self, groups, scale_factor):
