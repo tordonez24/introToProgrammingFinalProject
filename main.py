@@ -137,6 +137,7 @@ class Background(Sprite):
             self.pos.x = 0
         self.rect.x = round(self.pos.x)
 
+# similar to background sprite, but less complicated
 class Ground(Sprite):
     def __init__(self, groups, scale_factor):
         super().__init__(groups)
@@ -171,7 +172,7 @@ class Pipe(Sprite):
         # scales pipe image into final pipe image
         self.image = pg.transform.scale(pipe_image,pg.math.Vector2(pipe_image.get_size())* scale_factor)
         # x value is same for all pipes, but here, it chooses a random value to add to the x value to shift it some units to the left when it spawns
-        x = WIDTH + randint(50,90)
+        x = WIDTH + randint(30,70)
         # determines how far pipe sticks out when pipe is on the ground
         if orientation == 'bottom':
             y = HEIGHT + randint(5,70)
