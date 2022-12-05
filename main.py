@@ -69,9 +69,9 @@ class Game:
     # collision method
     def collisions(self):
         hit = pg.sprite.spritecollide(self.fish, self.collision_sprites, False)
-        if hit:
-            pg.quit()
-            sys.exit()
+        # if hit:
+        #     pg.quit()
+        #     sys.exit()
     # run method
     def run(self):
         previous_time = time.time()
@@ -206,7 +206,7 @@ class Fish(Sprite):
         self.rect = self.image.get_rect(midleft = (WIDTH / 20, HEIGHT / 2))
         self.pos = pg.math.Vector2(self.rect.topleft)
         # gravity and velocity
-        self.gravity = 500
+        self.gravity = 700
         self.direction = 0
     # method for gravity
     def grav(self, delta_time):
