@@ -10,6 +10,7 @@ https://www.delftstack.com/howto/python-pygame/get_rect-pygame/
 https://www.geeksforgeeks.org/python-time-time-method/
 https://www.geeksforgeeks.org/python-datetime-timedelta-function/
 https://web.microsoftstream.com/video/b1bdbe8e-edc6-47a8-a2f9-c1aaf1b7930f
+https://stackoverflow.com/questions/29885777/how-to-make-the-background-of-a-pygame-sprite-transparent#:~:text=from%20Tkinter%20import%20%2A%20import%20pygame%20from%20livewires,the%20program%20just%20as%20in%20tkinter%20games.screen.mainloop%20%28%29
 '''
 
 # imported libraries
@@ -57,7 +58,7 @@ class Game:
         self.all_sprites = pg.sprite.Group() # all existing sprite
         self.collision_sprites = pg.sprite.Group() # floor, pipes, and fish (sprite that can be collided with)
         # scale factor
-        background_height = pg.image.load(os.path.join(img_folder, 'background.jpg')).convert().get_height()
+        background_height = pg.image.load(os.path.join(img_folder, 'background.jpg')).convert_alpha().get_height()
         self.scale_factor = HEIGHT / background_height
         # sprite setup
         Background(self.all_sprites, self.scale_factor)
@@ -69,9 +70,9 @@ class Game:
     # collision method
     def collisions(self):
         hit = pg.sprite.spritecollide(self.fish, self.collision_sprites, False)
-        if hit:
-            pg.quit()
-            sys.exit()
+        # if hit:
+        #     pg.quit()
+        #     sys.exit()
     # run method
     def run(self):
         previous_time = time.time()
@@ -86,11 +87,19 @@ class Game:
                 if event.type == pg.QUIT:
                     pg.quit()
                     sys.exit()
-                # if there is a click, the fish jumps
+                # setting different keys for jump mechanic
                 if event.type == pg.MOUSEBUTTONDOWN:
                     self.fish.jump()
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_SPACE:
+                        self.fish.jump()
+                keys = pg.key.get_pressed()
+                if keys[pg.K_w]:
+                    self.fish.jump()
+                if keys[pg.K_UP]:
+                    self.fish.jump()
                 if event.type == self.pipe_timer:
-                    Pipe([self.all_sprites, self.collision_sprites], self.scale_factor / 1.55)
+                    Pipe([self.all_sprites, self.collision_sprites], self.scale_factor / 4.9)
             # updating pygame
             self.display_surface.fill('black')
             self.all_sprites.update(delta_time) # updates sprites with delta time
@@ -103,7 +112,7 @@ class Background(Sprite):
     def __init__(self, groups, scale_factor):
         super().__init__(groups)
         # loads background image
-        background_image = pg.image.load(os.path.join(img_folder, 'Background.jpg')).convert() 
+        background_image = pg.image.load(os.path.join(img_folder, 'Background.jpg')).convert_alpha()
         # gets height of original image and multiplies it by scale factor to get correct size to fit window
         done_height = background_image.get_height() * scale_factor
         # gets width of original image and multiplies it by scale factor to get correct size to fit window
@@ -132,19 +141,13 @@ class Ground(Sprite):
     def __init__(self, groups, scale_factor):
         super().__init__(groups)
         # loads ground image
-        ground_image = pg.image.load(os.path.join(img_folder, 'ground.png')).convert()
-        # gets height of original image and multiplies it by scale factor to get correct size to fit window
-        done1_height = ground_image.get_height() * scale_factor
-        # gets width of original image and multiplies it by scale factor to get correct size to fit window
-        done1_width = ground_image.get_width() * scale_factor
-        # transforms original image into fully sized image for background
-        done1_image = pg.transform.scale(ground_image,(done1_width, done1_height))
-        # create surface twice as wide as original background image to make double background
-        self.image = pg.Surface((done1_width * 2, done1_height))
+        ground_image = pg.image.load(os.path.join(img_folder, 'ground.png')).convert_alpha()
+        # scales original ground image for final self.image
+        self.image = pg.transform.scale(ground_image, pg.math.Vector2(ground_image.get_size()) * scale_factor)
         # draws fully sized image at (0,0)
-        self.image.blit(done1_image,(0,0))
-        # draws fully sized image directly after fully sized image at (0,0) to create double background
-        self.image.blit(done1_image,(done1_width,0))
+        self.image.blit(self.image,(0,0))
+        # draws fully sized image directly after fully sized image at (0,0) to create double ground
+        self.image.blit(self.image,(0,WIDTH))
         # sets top left as (0,0) and places fully sized image there
         self.rect = self.image.get_rect(bottomleft = (0,HEIGHT))
         self.pos = pg.math.Vector2(self.rect.bottomleft)
@@ -164,19 +167,19 @@ class Pipe(Sprite):
         # chooses random element from sequence; in this case, it chooses whether the pipe is on the top or bottom
         orientation = choice(('bottom', 'top'))
         # loads pipe image
-        pipe_image = pg.image.load(os.path.join(img_folder, 'pipe.png')).convert()
+        pipe_image = pg.image.load(os.path.join(img_folder, 'pipe.png')).convert_alpha()
         # scales pipe image into final pipe image
         self.image = pg.transform.scale(pipe_image,pg.math.Vector2(pipe_image.get_size())* scale_factor)
         # x value is same for all pipes, but here, it chooses a random value to add to the x value to shift it some units to the left when it spawns
         x = WIDTH + randint(50,90)
         # determines how far pipe sticks out when pipe is on the ground
         if orientation == 'bottom':
-            y = HEIGHT + randint(10,50)
+            y = HEIGHT + randint(5,70)
             # places image on middle right bottom of screen
             self.rect = self.image.get_rect(midbottom = (x,y))
         # determines how far pipe sticks out when on top
         if orientation == 'top':
-            y = 0 + randint(-50, -10)
+            y = 0 + randint(-70, -5)
             # flips pipe vertically, but not horizontally
             self.image = pg.transform.flip(self.image, False, True)
             # places image on middle right top of screen
@@ -195,7 +198,7 @@ class Fish(Sprite):
     def __init__(self, groups, scale_factor):
         super().__init__(groups)
         # loads fish image
-        fish_image = pg.image.load(os.path.join(img_folder, 'fish.png')).convert()
+        fish_image = pg.image.load(os.path.join(img_folder, 'fish.png')).convert_alpha()
         # scales fish image
         scaled_image = pg.transform.scale(fish_image,pg.math.Vector2(fish_image.get_size())* scale_factor)
         self.image = scaled_image
