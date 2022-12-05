@@ -31,7 +31,7 @@ from settings import *
 
 # utility functions
 
-# set up asset folders here
+# set up asset folders here for importing images
 introToProgrammingFinalProject_folder = os.path.dirname(__file__)
 img_folder = os.path.join(introToProgrammingFinalProject_folder, 'images')
 
@@ -39,7 +39,6 @@ img_folder = os.path.join(introToProgrammingFinalProject_folder, 'images')
 pg.init()
 pg.mixer.init()
 screen = pg.display.set_mode((WIDTH, HEIGHT))
-pg.display.set_caption("My Game...")
 clock = pg.time.Clock()
 
 # classes
@@ -49,11 +48,11 @@ class Game:
         # initializes all imported pygame modules
         pg.init()
         # creates instance of pg.display and returns it
-        self.display_surface = pg.display.set_mode((WIDTH,HEIGHT))
+        self.display_surface = screen
         # displays title of game
         pg.display.set_caption('Flappy Fish')
         # time module/clock
-        self.clock = pg.time.Clock()
+        self.clock = clock
         # create groups
         self.all_sprites = pg.sprite.Group() # all existing sprite
         self.collision_sprites = pg.sprite.Group() # floor, pipes, and fish (sprite that can be collided with)
@@ -70,9 +69,9 @@ class Game:
     # collision method
     def collisions(self):
         hit = pg.sprite.spritecollide(self.fish, self.collision_sprites, False)
-        # if hit:
-        #     pg.quit()
-        #     sys.exit()
+        if hit:
+            pg.quit()
+            sys.exit()
     # run method
     def run(self):
         previous_time = time.time()
@@ -221,7 +220,9 @@ class Fish(Sprite):
     def update(self, delta_time):
         # create methods with delta time for movement
         self.grav(delta_time)
-        
+        # creates ceiling by resetting y-coordinate to 0 whenever it is 0 or less than that
+        if self.rect.y <= 0:
+            self.pos.y = 0
 # makes while loop always run
 running = True
 # runs game class by creating instance of game class and calling it through run()
