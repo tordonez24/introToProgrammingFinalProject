@@ -174,12 +174,12 @@ class Pipe(Sprite):
         x = WIDTH + randint(30,70)
         # determines how far pipe sticks out when pipe is on the ground
         if orientation == 'bottom':
-            y = HEIGHT + randint(5,70)
+            y = HEIGHT + randint(5,45)
             # places image on middle right bottom of screen
             self.rect = self.image.get_rect(midbottom = (x,y))
         # determines how far pipe sticks out when on top
         if orientation == 'top':
-            y = 0 + randint(-70, -5)
+            y = 0 + randint(-20, 0)
             # flips pipe vertically, but not horizontally
             self.image = pg.transform.flip(self.image, False, True)
             # places image on middle right top of screen
