@@ -11,6 +11,7 @@ https://www.geeksforgeeks.org/python-time-time-method/
 https://www.geeksforgeeks.org/python-datetime-timedelta-function/
 https://web.microsoftstream.com/video/b1bdbe8e-edc6-47a8-a2f9-c1aaf1b7930f
 https://stackoverflow.com/questions/29885777/how-to-make-the-background-of-a-pygame-sprite-transparent#:~:text=from%20Tkinter%20import%20%2A%20import%20pygame%20from%20livewires,the%20program%20just%20as%20in%20tkinter%20games.screen.mainloop%20%28%29
+https://stackoverflow.com/questions/35304498/what-are-the-pygame-surface-get-rect-key-arguments
 '''
 
 # imported libraries
@@ -28,8 +29,23 @@ import os
 from settings import *
 
 # global variables
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+YELLOW = (244, 255, 0)
+pass_pipe = False
 
 # utility functions
+# defines the function that visually draws text
+def draw_text(text, size, color, x, y):
+        font_name = pg.font.match_font('arial')
+        font = pg.font.Font(font_name, size)
+        text_surface = font.render(text, True, color)
+        text_rect = text_surface.get_rect()
+        text_rect.midtop = (x, y)
+        screen.blit(text_surface, text_rect)
 
 # set up asset folders here for importing images
 introToProgrammingFinalProject_folder = os.path.dirname(__file__)
@@ -42,7 +58,6 @@ screen = pg.display.set_mode((WIDTH, HEIGHT))
 clock = pg.time.Clock()
 
 # classes
-
 class Game:
     def __init__(self):
         # initializes all imported pygame modules
@@ -104,6 +119,7 @@ class Game:
             self.all_sprites.update(delta_time) # updates sprites with delta time
             self.collisions()
             self.all_sprites.draw(self.display_surface) # draws sprites
+            draw_text("SCORE: " + str(SCORE), 22, WHITE, WIDTH / 2, HEIGHT / 24)
             pg.display.update()
             self.clock.tick(FPS) # calling framrate
 
@@ -163,15 +179,14 @@ class Ground(Sprite):
 class Pipe(Sprite):
     def __init__(self, groups, scale_factor):
         super().__init__(groups)
-
-        # chooses random element from sequence; in this case, it chooses whether the pipe is on the top or bottom
-        orientation = choice(('bottom', 'top'))
         # loads pipe image
         pipe_image = pg.image.load(os.path.join(img_folder, 'pipe.png')).convert_alpha()
         # scales pipe image into final pipe image
         self.image = pg.transform.scale(pipe_image,pg.math.Vector2(pipe_image.get_size())* scale_factor)
         # x value is same for all pipes, but here, it chooses a random value to add to the x value to shift it some units to the left when it spawns
         x = WIDTH + randint(30,70)
+        # chooses random element from sequence; in this case, it chooses whether the pipe is on the top or bottom
+        orientation = choice(('bottom', 'top', 'none'))
         # determines how far pipe sticks out when pipe is on the ground
         if orientation == 'bottom':
             y = HEIGHT + randint(5,45)
@@ -179,11 +194,16 @@ class Pipe(Sprite):
             self.rect = self.image.get_rect(midbottom = (x,y))
         # determines how far pipe sticks out when on top
         if orientation == 'top':
-            y = 0 + randint(-20, 0)
+            y = randint(-20, 0)
             # flips pipe vertically, but not horizontally
             self.image = pg.transform.flip(self.image, False, True)
             # places image on middle right top of screen
             self.rect = self.image.get_rect(midtop = (x,y))
+        # added a chance to have pipe be oriented 10,000 units away so basically, it doesn't exist
+        # this can make it harder or easier because player now has to judge the next pipe differently
+        if orientation == 'none':
+            y = 10000
+            self.rect = self.image.get_rect(topright = (x + 10000, y))
         self.pos = pg.math.Vector2(self.rect.topleft)
     # update method
     def update(self, delta_time):

@@ -2,3 +2,4 @@
 HEIGHT = 900
 WIDTH = 700
 FPS = 60
+SCORE = 0
