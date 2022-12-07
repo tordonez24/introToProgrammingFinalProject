@@ -9,9 +9,12 @@ https://www.youtube.com/watch?v=rWtfClpWSb8
 https://www.delftstack.com/howto/python-pygame/get_rect-pygame/
 https://www.geeksforgeeks.org/python-time-time-method/
 https://www.geeksforgeeks.org/python-datetime-timedelta-function/
+https://www.youtube.com/watch?v=v_linpA7uXo
 https://web.microsoftstream.com/video/b1bdbe8e-edc6-47a8-a2f9-c1aaf1b7930f
 https://stackoverflow.com/questions/29885777/how-to-make-the-background-of-a-pygame-sprite-transparent#:~:text=from%20Tkinter%20import%20%2A%20import%20pygame%20from%20livewires,the%20program%20just%20as%20in%20tkinter%20games.screen.mainloop%20%28%29
 https://stackoverflow.com/questions/35304498/what-are-the-pygame-surface-get-rect-key-arguments
+my sister cropped the images on her ipad
+https://www.pygame.org/docs/ref/mask.html#pygame.mask.from_surface
 '''
 
 # imported libraries
@@ -67,10 +70,11 @@ class Game:
         pg.display.set_caption('Flappy Fish')
         # time module/clock
         self.clock = clock
+        self.active = True
         # create groups
         self.all_sprites = pg.sprite.Group() # all existing sprite
         self.collision_sprites = pg.sprite.Group() # floor, pipes, and fish (sprite that can be collided with)
-        # scale factor
+        # scale factor by getting height of window and dividing it by height of background image file
         background_height = pg.image.load(os.path.join(img_folder, 'background.jpg')).convert_alpha().get_height()
         self.scale_factor = HEIGHT / background_height
         # sprite setup
@@ -80,12 +84,15 @@ class Game:
         # timer
         self.pipe_timer = pg.USEREVENT + 1
         pg.time.set_timer(self.pipe_timer, 1400)
+        # game menu
+
     # collision method
     def collisions(self):
-        hit = pg.sprite.spritecollide(self.fish, self.collision_sprites, False)
-        # if hit:
-        #     pg.quit()
-        #     sys.exit()
+        hit = pg.sprite.spritecollide(self.fish, self.collision_sprites, False, pg.sprite.collide_mask)
+        if hit:
+            self.active = False
+            self.fish.kill()
+
     # run method
     def run(self):
         previous_time = time.time()
@@ -114,8 +121,9 @@ class Game:
                 if event.type == self.pipe_timer:
                     Pipe([self.all_sprites, self.collision_sprites], self.scale_factor / 4.9)
             # creates a time in seconds
-            ticks = pg.time.get_ticks()
-            TIME = ticks / 1000
+            if self.active == True:
+                ticks = pg.time.get_ticks()
+                TIME = ticks / 1000
 
             # updating pygame
             self.display_surface.fill('black')
@@ -125,7 +133,6 @@ class Game:
             self.all_sprites.draw(self.display_surface) # draws sprites
             draw_text("TIME: " + str(TIME) + ' SECONDS', 22, WHITE, WIDTH / 2, HEIGHT / 24) # displays time
             pg.display.update()
-
 
 class Background(Sprite):
     def __init__(self, groups, scale_factor):
@@ -154,7 +161,8 @@ class Background(Sprite):
         # if centerx is less than 0, reset the positiion to centerx = 0
         if self.rect.centerx <= 0:
             self.pos.x = 0
-        self.rect.x = round(self.pos.x)
+        # rounds self.pos.x to whole numbers
+        self.rect.x = self.pos.x
 
 # similar to background sprite, but less complicated
 class Ground(Sprite):
@@ -171,6 +179,8 @@ class Ground(Sprite):
         # sets top left as (0,0) and places fully sized image there
         self.rect = self.image.get_rect(bottomleft = (0,HEIGHT))
         self.pos = pg.math.Vector2(self.rect.bottomleft)
+        # gets rid of transparent pixels in image so they cannot touch the fish
+        self.mask = pg.mask.from_surface(self.image)
     # update method
     def update(self, delta_time):
         # determines speed of camera movement
@@ -178,7 +188,7 @@ class Ground(Sprite):
         # if centerx is less than 0, reset the positiion to centerx = 0
         if self.rect.centerx <= 0:
             self.pos.x = 0
-        self.rect.x = round(self.pos.x)
+        self.rect.x = self.pos.x
 
 class Pipe(Sprite):
     def __init__(self, groups, scale_factor):
@@ -190,25 +200,27 @@ class Pipe(Sprite):
         # x value is same for all pipes, but here, it chooses a random value to add to the x value to shift it some units to the left when it spawns
         x = WIDTH + randint(30,70)
         # chooses random element from sequence; in this case, it chooses whether the pipe is on the top or bottom
-        orientation = choice(('bottom', 'top'))
+        placement = choice(('bottom', 'top'))
         # determines how far pipe sticks out when pipe is on the ground
-        if orientation == 'bottom':
+        if placement == 'bottom':
             y = HEIGHT + randint(5,45)
             # places image on middle right bottom of screen
             self.rect = self.image.get_rect(midbottom = (x,y))
         # determines how far pipe sticks out when on top
-        if orientation == 'top':
+        if placement == 'top':
             y = randint(-20, 0)
             # flips pipe vertically, but not horizontally
             self.image = pg.transform.flip(self.image, False, True)
             # places image on middle right top of screen
             self.rect = self.image.get_rect(midtop = (x,y))
         self.pos = pg.math.Vector2(self.rect.topleft)
+        # gets rid of transparent pixels in image so they cannot touch fish
+        self.mask = pg.mask.from_surface(self.image)
     # update method
     def update(self, delta_time):
         # speed of pipes
         self.pos.x -= 200 * delta_time
-        self.rect.x = round(self.pos.x)
+        self.rect.x = self.pos.x 
         # if pipe goes 200 units to the left of screen, delete it
         if self.rect.right <= -200:
             self.kill()
@@ -227,11 +239,13 @@ class Fish(Sprite):
         # gravity and velocity
         self.gravity = 700
         self.direction = 0
+        # gets rid of transparent pixels in image so they cannot touch the ground or pipes
+        self.mask = pg.mask.from_surface(self.image)
     # method for gravity
     def grav(self, delta_time):
         self.direction += self.gravity * delta_time
         self.pos.y += self.direction * delta_time
-        self.rect.y = round(self.pos.y)
+        self.rect.y = self.pos.y
     # method for jump mechanic
     def jump(self):
         self.direction = -300
@@ -242,6 +256,7 @@ class Fish(Sprite):
         # creates ceiling by resetting y-coordinate to 0 whenever it is 0 or less than that
         if self.rect.y <= 0:
             self.pos.y = 0
+
 # makes while loop always run
 running = True
 # runs game class by creating instance of game class and calling it through run()
