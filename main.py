@@ -35,7 +35,6 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 YELLOW = (244, 255, 0)
-pass_pipe = False
 
 # utility functions
 # defines the function that visually draws text
@@ -96,7 +95,7 @@ class Game:
             # it accounts for all framerates and makes it consistent by being multiplied by every movement in game
             delta_time = time.time() - previous_time
             previous_time = time.time()
-            # event for loop which quits the game when told to
+            # event for loop
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     pg.quit()
@@ -114,14 +113,19 @@ class Game:
                     self.fish.jump()
                 if event.type == self.pipe_timer:
                     Pipe([self.all_sprites, self.collision_sprites], self.scale_factor / 4.9)
+            # creates a time in seconds
+            ticks = pg.time.get_ticks()
+            TIME = ticks / 1000
+
             # updating pygame
             self.display_surface.fill('black')
+            self.clock.tick(FPS) # calling framrate
             self.all_sprites.update(delta_time) # updates sprites with delta time
             self.collisions()
             self.all_sprites.draw(self.display_surface) # draws sprites
-            draw_text("SCORE: " + str(SCORE), 22, WHITE, WIDTH / 2, HEIGHT / 24)
+            draw_text("TIME: " + str(TIME) + ' SECONDS', 22, WHITE, WIDTH / 2, HEIGHT / 24) # displays time
             pg.display.update()
-            self.clock.tick(FPS) # calling framrate
+
 
 class Background(Sprite):
     def __init__(self, groups, scale_factor):
@@ -140,7 +144,7 @@ class Background(Sprite):
         self.image.blit(done_image,(0,0))
         # draws fully sized image directly after fully sized image at (0,0) to create double background
         self.image.blit(done_image,(done_width,0))
-        # sets top left as (0,0) and places fullysized image there
+        # sets top left as (0,0) and places fully sized image there
         self.rect = self.image.get_rect(topleft = (0,0))
         self.pos = pg.math.Vector2(self.rect.topleft)
     # update method
@@ -186,7 +190,7 @@ class Pipe(Sprite):
         # x value is same for all pipes, but here, it chooses a random value to add to the x value to shift it some units to the left when it spawns
         x = WIDTH + randint(30,70)
         # chooses random element from sequence; in this case, it chooses whether the pipe is on the top or bottom
-        orientation = choice(('bottom', 'top', 'none'))
+        orientation = choice(('bottom', 'top'))
         # determines how far pipe sticks out when pipe is on the ground
         if orientation == 'bottom':
             y = HEIGHT + randint(5,45)
@@ -199,11 +203,6 @@ class Pipe(Sprite):
             self.image = pg.transform.flip(self.image, False, True)
             # places image on middle right top of screen
             self.rect = self.image.get_rect(midtop = (x,y))
-        # added a chance to have pipe be oriented 10,000 units away so basically, it doesn't exist
-        # this can make it harder or easier because player now has to judge the next pipe differently
-        if orientation == 'none':
-            y = 10000
-            self.rect = self.image.get_rect(topright = (x + 10000, y))
         self.pos = pg.math.Vector2(self.rect.topleft)
     # update method
     def update(self, delta_time):
