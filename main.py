@@ -169,7 +169,7 @@ class Player(Sprite):
         self.image = scaled_image
         # makes starting position of image at midleft point by dividing width by 20 and height by 2 to get coordinates
         self.rect = self.image.get_rect(midleft = (WIDTH / 20, HEIGHT / 2))
-        self.pos = pg.math.Vector2(self.rect.topleft)
+        self.pos = self.rect
         # gets rid of transparent pixels in image so they cannot touch the ground or pipes
         self.mask = pg.mask.from_surface(self.image)
     # method for jump mechanic
@@ -207,7 +207,7 @@ class Back(Sprite):
         self.image.blit(done_image,(done_width,0))
         # sets top left as (0,0) and draws fully sized image there
         self.rect = self.image.get_rect(topleft = (0,0))
-        self.pos = pg.math.Vector2(self.rect.topleft)
+        self.pos = self.rect
     # update method
     def update(self, delta_time):
         # determines speed of camera movement
@@ -215,7 +215,6 @@ class Back(Sprite):
         # if centerx is less than 0, reset the positiion to centerx = 0
         if self.rect.centerx <= 0:
             self.pos.x = 0
-        # rounds self.pos.x to whole numbers
         self.rect.x = self.pos.x
 
 # similar to background sprite, but less complicated
@@ -232,7 +231,7 @@ class Ground(Sprite):
         self.image.blit(self.image,(0,WIDTH))
         # sets top left as (0,0) and draws fully sized image there
         self.rect = self.image.get_rect(bottomleft = (0,HEIGHT))
-        self.pos = pg.math.Vector2(self.rect.bottomleft)
+        self.pos = self.rect
         # gets rid of transparent pixels in image so they cannot touch the player
         self.mask = pg.mask.from_surface(self.image)
     # update method
@@ -256,7 +255,7 @@ class Pipe(Sprite):
         # chooses random element from sequence; in this case, it chooses whether the pipe is on the top or bottom
         placement = randint(1,2)
         # determines how far pipe sticks out when pipe is on the ground
-        if placement == 1: 
+        if placement == 1:
             y = HEIGHT + randint(5,45)
             # places image on middle right bottom of screen
             self.rect = self.image.get_rect(midbottom = (x,y))
@@ -267,7 +266,7 @@ class Pipe(Sprite):
             y = randint(-20, 0)
             # places image on middle right top of screen
             self.rect = self.image.get_rect(midtop = (x,y))
-        self.pos = pg.math.Vector2(self.rect.topleft)
+        self.pos = self.rect
         # gets rid of transparent pixels in image so they cannot touch player
         self.mask = pg.mask.from_surface(self.image)
     # update method
