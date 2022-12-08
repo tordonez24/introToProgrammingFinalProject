@@ -74,28 +74,29 @@ class Game:
         self.active = True
         # create groups
         self.all_sprites = pg.sprite.Group() # all existing sprites
-        self.collision_sprites = pg.sprite.Group() # floor, pipes, and fish (sprites that can be collided with)
+        self.collision_sprites = pg.sprite.Group() # floor, pipes, and player (sprites that can be collided with)
         # creates scale factor by getting height of window and dividing it by height of background image file
         back_height = pg.image.load(os.path.join(img_folder, 'background.jpg')).convert_alpha().get_height()
         self.sf = HEIGHT / back_height
         # timer
         self.pipe_timer = pg.USEREVENT + 1
         pg.time.set_timer(self.pipe_timer, 1400)
-        self.start_offset = 0
+        # part of resetting timer when playing again after death
+        self.restart = 0
         # instantiate classes
         self.back = Back(self.all_sprites, self.sf)
         self.ground = Ground([self.all_sprites, self.collision_sprites], self.sf/ 2)
-        self.fish = Fish(self.all_sprites, self.sf / 25)
+        self.player = Player(self.all_sprites, self.sf / 25)
         # loads play again image
         self.pagain_surface = pg.image.load(os.path.join(img_folder, 'pagain.png')).convert_alpha()
         # places image in center of screen
         self.pagain_rect = self.pagain_surface.get_rect(center = (WIDTH / 2, HEIGHT / 3.5))
     # collision method
     def collisions(self):
-        hit = pg.sprite.spritecollide(self.fish, self.collision_sprites, False, pg.sprite.collide_mask)
+        hit = pg.sprite.spritecollide(self.player, self.collision_sprites, False, pg.sprite.collide_mask)
         if hit:
             self.active = False
-            self.fish.kill()
+            self.player.kill()
         # loads play again image
         if self.active == False:
             self.display_surface.blit(self.pagain_surface, self.pagain_rect)
@@ -109,29 +110,33 @@ class Game:
             # it accounts for all framerates and makes it consistent by being multiplied by every movement in game
             delta_time = time.time() - p_time
             p_time = time.time()
+            # creates a time in seconds
+            if self.active == True:
+                ticks = (pg.time.get_ticks() - self.restart)
+                TIME = ticks / 1000
             # event for loop
             for event in pg.event.get():
                 if event.type == pg.MOUSEBUTTONDOWN:
-                    self.fish.jump()
+                    self.player.jump()
                 # setting different keys for jump mechanic
                 if event.type == pg.KEYDOWN:
                     if event.key == pg.K_SPACE:
-                        self.fish.jump()
+                        self.player.jump()
                 keys = pg.key.get_pressed()
                 if keys[pg.K_w]:
-                    self.fish.jump()
+                    self.player.jump()
                 if keys[pg.K_UP]:
-                    self.fish.jump()
+                    self.player.jump()
                 if event.type == self.pipe_timer and self.active:
                     Pipe([self.all_sprites, self.collision_sprites], self.sf / 4.9)
-                # while playing game, pass; while not playing and on "play again" screen, pressing "y" will respawn the fish and reset the time
+                # while playing game, pass; while not playing and on "play again" screen, pressing "y" will respawn the player and reset the time
                 if keys[pg.K_y]:
                     if self.active == True:
                         pass
                     if self.active == False:
-                        self.fish = Fish(self.all_sprites, self.sf / 25)
+                        self.player = Player(self.all_sprites, self.sf / 25)
                         self.active = True
-                        self.start_offset = pg.time.get_ticks()
+                        self.restart = pg.time.get_ticks()
                 # if window is closed, everything quits
                 if event.type == pg.QUIT:
                     pg.quit()
@@ -143,12 +148,7 @@ class Game:
                     if self.active == False:
                         pg.quit()
                         sys.exit()
-            # creates a time in seconds
-            if self.active == True:
-                ticks = (pg.time.get_ticks() - self.start_offset)
-                TIME = ticks / 1000
             # updating pygame
-            self.display_surface.fill('black')
             self.clock.tick(FPS) # calling framrate
             self.all_sprites.update(delta_time) # updates sprites with delta time
             self.all_sprites.draw(self.display_surface) # draws sprites
@@ -156,16 +156,16 @@ class Game:
             draw_text("TIME: " + str(TIME) + ' SECONDS', 22, BLACK, WIDTH / 2, HEIGHT / 24) # displays time (from pygame assignment)
             pg.display.update()
 
-class Fish(Sprite):
+class Player(Sprite):
     def __init__(self, groups, sf):
         super().__init__(groups)
         # gravity and velocity
         self.gravity = 700
         self.direct = 0
-        # loads fish image
-        fish_image = pg.image.load(os.path.join(img_folder, 'fish.png')).convert_alpha()
-        # scales fish image
-        scaled_image = pg.transform.scale(fish_image,pg.math.Vector2(fish_image.get_size())* sf)
+        # loads player image
+        player_image = pg.image.load(os.path.join(img_folder, 'fish.png')).convert_alpha()
+        # scales player image
+        scaled_image = pg.transform.scale(player_image,pg.math.Vector2(player_image.get_size())* sf)
         self.image = scaled_image
         # makes starting position of image at midleft point by dividing width by 20 and height by 2 to get coordinates
         self.rect = self.image.get_rect(midleft = (WIDTH / 20, HEIGHT / 2))
@@ -233,7 +233,7 @@ class Ground(Sprite):
         # sets top left as (0,0) and draws fully sized image there
         self.rect = self.image.get_rect(bottomleft = (0,HEIGHT))
         self.pos = pg.math.Vector2(self.rect.bottomleft)
-        # gets rid of transparent pixels in image so they cannot touch the fish
+        # gets rid of transparent pixels in image so they cannot touch the player
         self.mask = pg.mask.from_surface(self.image)
     # update method
     def update(self, delta_time):
@@ -268,7 +268,7 @@ class Pipe(Sprite):
             # places image on middle right top of screen
             self.rect = self.image.get_rect(midtop = (x,y))
         self.pos = pg.math.Vector2(self.rect.topleft)
-        # gets rid of transparent pixels in image so they cannot touch fish
+        # gets rid of transparent pixels in image so they cannot touch player
         self.mask = pg.mask.from_surface(self.image)
     # update method
     def update(self, delta_time):
