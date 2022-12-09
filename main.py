@@ -71,62 +71,73 @@ class Game:
         pg.display.set_caption('Flappy Fish')
         # time module/clock
         self.clock = clock
-        self.active = True
+        self.alive = True
         # create groups
         self.all_sprites = pg.sprite.Group() # all existing sprites
-        self.collision_sprites = pg.sprite.Group() # floor, pipes, and player (sprites that can be collided with)
-        self.p_collision_sprites = pg.sprite.Group()
-        self.pwr_collision_sprites = pg.sprite.Group()
+        self.collision_sprites = pg.sprite.Group() # pipe collision
+        self.g_collision_sprites = pg.sprite.Group() # ground collision
+        self.p_collision_sprites = pg.sprite.Group() # star collision
+        self.pwr_collision_sprites = pg.sprite.Group() # extra life collision
         # creates scale factor by getting height of window and dividing it by height of background image file
         back_height = pg.image.load(os.path.join(img_folder, 'background.jpg')).convert_alpha().get_height()
         self.sf = HEIGHT / back_height
         # timer
         self.pipe_timer = pg.USEREVENT + 1
         pg.time.set_timer(self.pipe_timer, 1400)
-        # part of resetting timer when playing again after death
+        # part of resetting timer, lives, and stars when playing again after death
         self.restart = 0
         self.restart1 = 0
         # instantiate classes
         self.back = Back(self.all_sprites, self.sf)
-        self.ground = Ground([self.all_sprites, self.collision_sprites], self.sf/ 2)
+        self.ground = Ground([self.all_sprites, self.g_collision_sprites], self.sf/ 2)
         self.player = Player(self.all_sprites, self.sf / 25)
         # loads play again image
         self.pagain_surface = pg.image.load(os.path.join(img_folder, 'pagain.png')).convert_alpha()
         # places image in center of screen
         self.pagain_rect = self.pagain_surface.get_rect(center = (WIDTH / 2, HEIGHT / 3.5))
+        # variable for # of initial stars
         self.stars = 0
+        # variable for # of initial lives
         self.life = 1
     # collision method
     def collisions(self):
-        hit = pg.sprite.spritecollide(self.player, self.collision_sprites, False, pg.sprite.collide_mask)
-        if hit:
-            self.life -=1
-            print(self.life)
+        if self.life > 0:
+            # if player has lives and hits a pipe, the pipe is broken and 1 life is lost
+            hit = pg.sprite.spritecollide(self.player, self.collision_sprites, True, pg.sprite.collide_mask)
+            if hit:
+                self.life -= 1
+            # if player has lives and hits the ground, the player is teleported back to centermiddle and 1 life is lost
+            hits = pg.sprite.spritecollide(self.player, self.g_collision_sprites, False, pg.sprite.collide_mask)
+            if hits:
+                self.player.pos.y = HEIGHT / 2
+                self.player.direct = 0
+                self.life -= 1
+        # if lives are 0 or negative, delete player sprite and set self.alive to False
         if self.life <= 0:
             self.life = 0
-            self.active = False
+            self.alive = False
             self.player.kill()
-        # loads play again image
-        if self.active == False:
+        # if player is dead, display play again screen and kill all sprites execept for ground and background
+        if self.alive == False:
             self.display_surface.blit(self.pagain_surface, self.pagain_rect)
             for sprite in self.collision_sprites.sprites():
-                if sprite.sprite_type == 'pipe':
-                    sprite.kill()
-                else:
-                    pass
+                sprite.kill()
             for sprite in self.p_collision_sprites.sprites():
                 sprite.kill()
             for sprite in self.pwr_collision_sprites.sprites():
                 sprite.kill()
+    # method for star collisions
     def p_collisions(self):
+        # if it hits, the star is deleted and 1 star is added to counter
         hit = pg.sprite.spritecollide(self.player, self.p_collision_sprites, True)
         if hit:
             self.stars += 1
+    # method for heart collisions
     def pwr_collisions(self):
+        # if it hits, the heart is deleted and 1 extra life is added to counter
         hit = pg.sprite.spritecollide(self.player, self.pwr_collision_sprites, True)
         if hit:
             self.life +=1
-            print(self.life)
     # run method
     def run(self):
         p_time = time.time()
@@ -138,16 +149,16 @@ class Game:
             delta_time = time.time() - p_time
             p_time = time.time()
             # creates a time in seconds
-            if self.active == True:
+            # when player is alive...
+            if self.alive == True:
                 ticks = (pg.time.get_ticks() - self.restart)
                 TIME = ticks / 1000
-            if self.active == True:
                 stars = self.stars- self.restart1
             # event for loop
             for event in pg.event.get():
+                # setting different keys for jump mechanic
                 if event.type == pg.MOUSEBUTTONDOWN:
                     self.player.jump()
-                # setting different keys for jump mechanic
                 if event.type == pg.KEYDOWN:
                     if event.key == pg.K_SPACE:
                         self.player.jump()
@@ -156,21 +167,22 @@ class Game:
                     self.player.jump()
                 if keys[pg.K_UP]:
                     self.player.jump()
-                if event.type == self.pipe_timer and self.active:
+                # when player is alive and timer is going...
+                if event.type == self.pipe_timer and self.alive:
                     Pipe([self.all_sprites, self.collision_sprites], self.sf / 4.9)
                     chance = randint(1,2)
-                    if chance == 1:
+                    if chance == 1: # 50% chance to spawn a star somwhere on the screen
                         Star([self.all_sprites, self.p_collision_sprites], self.sf / 10)
-                    chance1 = randint(1,10)
+                    chance1 = randint(1,10) # 10% chance to spawn an extra life in middle of screen
                     if chance1 == 1:
                         Pwrup([self.all_sprites, self.pwr_collision_sprites], self.sf / 17)
-                # while playing game, pass; while not playing and on "play again" screen, pressing "y" will respawn the player and reset the time
+                # while playing game, pass; while not playing and on "play again" screen, pressing "y" will respawn the player and reset the time, lives, and stars
                 if keys[pg.K_y]:
-                    if self.active == True:
+                    if self.alive == True:
                         self.life = 1
-                    if self.active == False:
+                    if self.alive == False:
                         self.player = Player(self.all_sprites, self.sf / 25)
-                        self.active = True
+                        self.alive = True
                         self.restart = pg.time.get_ticks()
                         self.restart1 = self.stars
                 # if window is closed, everything quits
@@ -179,9 +191,9 @@ class Game:
                     sys.exit()
                 # if player presses "n" key on play again screen, window closes and everything quits
                 if keys[pg.K_n]:
-                    if self.active == True:
+                    if self.alive == True:
                         pass
-                    if self.active == False:
+                    if self.alive == False:
                         pg.quit()
                         sys.exit()
             # updating pygame
@@ -227,8 +239,6 @@ class Player(Sprite):
         # creates ceiling by resetting y-coordinate to 0 whenever it is 0 or less than that
         if self.rect.y <= 0:
             self.pos.y = 0
-        if self.rect.y >= 850:
-            self.pos.y = HEIGHT / 2
 
 class Back(Sprite):
     def __init__(self, groups, sf):
@@ -263,7 +273,6 @@ class Back(Sprite):
 class Ground(Sprite):
     def __init__(self, groups, sf):
         super().__init__(groups)
-        self.sprite_type = 'ground'
         # loads ground image
         ground_image = pg.image.load(os.path.join(img_folder, 'ground.png')).convert_alpha()
         # scales original ground image for final self.image
@@ -290,38 +299,44 @@ class Star(Sprite):
     def __init__(self, groups, sf):
         super().__init__(groups)
         x = WIDTH
-        y = HEIGHT- randint (50,800)
-        star_image = pg.image.load(os.path.join(img_folder, 'star.png')).convert_alpha()
-        self.image = pg.transform.scale(star_image,pg.math.Vector2(star_image.get_size())* sf)
+        y = HEIGHT- randint (50,800) # can spawn at any height on visible screen
+        star_image = pg.image.load(os.path.join(img_folder, 'star.png')).convert_alpha() # loads image of star
+        self.image = pg.transform.scale(star_image,pg.math.Vector2(star_image.get_size())* sf) # scales star
         self.rect = self.image.get_rect(center = (x,y))
         self.pos = pg.math.Vector2(self.rect.topleft)
+        # gets rid of transparent pixels in image so they cannot touch the player
         self.mask = pg.mask.from_surface(self.image)
     def update(self, delta_time):
+        # speed of star
         self.pos.x -= 200 * delta_time
-        self.rect.x = self.pos.x 
+        self.rect.x = self.pos.x
+        # if it goes 200 units to the left, kill
         if self.rect.right <= -200:
             self.kill()
 
 class Pwrup(Sprite):
     def __init__(self, groups, sf):
         super().__init__(groups)
-        x = WIDTH / 2
+        # coords so it spawns in right center of screen
+        x = WIDTH
         y = HEIGHT / 2
-        star_image = pg.image.load(os.path.join(img_folder, 'heart.jpg')).convert_alpha()
-        self.image = pg.transform.scale(star_image,pg.math.Vector2(star_image.get_size())* sf)
+        star_image = pg.image.load(os.path.join(img_folder, 'heart.jpg')).convert_alpha() # loads image
+        self.image = pg.transform.scale(star_image,pg.math.Vector2(star_image.get_size())* sf) # scales image
         self.rect = self.image.get_rect(center = (x,y))
         self.pos = pg.math.Vector2(self.rect.topleft)
+        # gets rid of transparent pixels in image so they cannot touch the player
         self.mask = pg.mask.from_surface(self.image)
     def update(self, delta_time):
+        # speed of heart powerup
         self.pos.x -= 200 * delta_time
-        self.rect.x = self.pos.x 
+        self.rect.x = self.pos.x
+        # if it goes 200 units to the left, kill
         if self.rect.right <= -200:
             self.kill()
 
 class Pipe(Sprite):
     def __init__(self, groups, sf):
         super().__init__(groups)
-        self.sprite_type = 'pipe'
          # x value is same for all pipes, but here, it chooses a random value to add to the x value to shift it some units to the left when it spawns
         x = WIDTH + randint(30,70)
         # loads pipe image
