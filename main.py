@@ -103,11 +103,21 @@ class Game:
             self.life -=1
             print(self.life)
         if self.life <= 0:
+            self.life = 0
             self.active = False
             self.player.kill()
         # loads play again image
         if self.active == False:
             self.display_surface.blit(self.pagain_surface, self.pagain_rect)
+            for sprite in self.collision_sprites.sprites():
+                if sprite.sprite_type == 'pipe':
+                    sprite.kill()
+                else:
+                    pass
+            for sprite in self.p_collision_sprites.sprites():
+                sprite.kill()
+            for sprite in self.pwr_collision_sprites.sprites():
+                sprite.kill()
     def p_collisions(self):
         hit = pg.sprite.spritecollide(self.player, self.p_collision_sprites, True)
         if hit:
@@ -148,8 +158,12 @@ class Game:
                     self.player.jump()
                 if event.type == self.pipe_timer and self.active:
                     Pipe([self.all_sprites, self.collision_sprites], self.sf / 4.9)
-                    Star([self.all_sprites, self.p_collision_sprites], self.sf / 10)
-                    Pwrup([self.all_sprites, self.pwr_collision_sprites], self.sf / 17)
+                    chance = randint(1,2)
+                    if chance == 1:
+                        Star([self.all_sprites, self.p_collision_sprites], self.sf / 10)
+                    chance1 = randint(1,10)
+                    if chance1 == 1:
+                        Pwrup([self.all_sprites, self.pwr_collision_sprites], self.sf / 17)
                 # while playing game, pass; while not playing and on "play again" screen, pressing "y" will respawn the player and reset the time
                 if keys[pg.K_y]:
                     if self.active == True:
@@ -213,6 +227,8 @@ class Player(Sprite):
         # creates ceiling by resetting y-coordinate to 0 whenever it is 0 or less than that
         if self.rect.y <= 0:
             self.pos.y = 0
+        if self.rect.y >= 850:
+            self.pos.y = HEIGHT / 2
 
 class Back(Sprite):
     def __init__(self, groups, sf):
@@ -247,6 +263,7 @@ class Back(Sprite):
 class Ground(Sprite):
     def __init__(self, groups, sf):
         super().__init__(groups)
+        self.sprite_type = 'ground'
         # loads ground image
         ground_image = pg.image.load(os.path.join(img_folder, 'ground.png')).convert_alpha()
         # scales original ground image for final self.image
@@ -304,6 +321,7 @@ class Pwrup(Sprite):
 class Pipe(Sprite):
     def __init__(self, groups, sf):
         super().__init__(groups)
+        self.sprite_type = 'pipe'
          # x value is same for all pipes, but here, it chooses a random value to add to the x value to shift it some units to the left when it spawns
         x = WIDTH + randint(30,70)
         # loads pipe image
@@ -314,14 +332,14 @@ class Pipe(Sprite):
         placement = randint(1,2)
         # determines how far pipe sticks out when pipe is on the ground
         if placement == 1:
-            y = HEIGHT + randint(5,45)
+            y = HEIGHT + randint(20,45)
             # places image on middle right bottom of screen
             self.rect = self.image.get_rect(midbottom = (x,y))
         # determines how far pipe sticks out when on top
         if placement == 2:
             # flips pipe vertically, but not horizontally
             self.image = pg.transform.flip(self.image, False, True)
-            y = randint(-20, 0)
+            y = randint(-30, -10)
             # places image on middle right top of screen
             self.rect = self.image.get_rect(midtop = (x,y))
         self.pos = pg.math.Vector2(self.rect.topleft)
