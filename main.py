@@ -10,6 +10,7 @@ https://www.delftstack.com/howto/python-pygame/get_rect-pygame/
 https://www.geeksforgeeks.org/python-time-time-method/
 https://www.geeksforgeeks.org/python-datetime-timedelta-function/
 https://www.youtube.com/watch?v=v_linpA7uXo
+https://www.youtube.com/watch?v=VUFvY349ess&t=17s
 https://web.microsoftstream.com/video/b1bdbe8e-edc6-47a8-a2f9-c1aaf1b7930f
 https://stackoverflow.com/questions/29885777/how-to-make-the-background-of-a-pygame-sprite-transparent#:~:text=from%20Tkinter%20import%20%2A%20import%20pygame%20from%20livewires,the%20program%20just%20as%20in%20tkinter%20games.screen.mainloop%20%28%29
 https://stackoverflow.com/questions/35304498/what-are-the-pygame-surface-get-rect-key-arguments
@@ -25,7 +26,7 @@ import sys
 import time
 
 # built in libraries
-import random
+# import random
 from random import choice, randint
 import os
 
@@ -96,10 +97,15 @@ class Game:
         hit = pg.sprite.spritecollide(self.player, self.collision_sprites, False, pg.sprite.collide_mask)
         if hit:
             self.active = False
-            self.player.kill()
+            LIFE -= 1
         # loads play again image
         if self.active == False:
             self.display_surface.blit(self.pagain_surface, self.pagain_rect)
+    def life_collisions(self):
+        hit = pg.sprite.spritecollide(self.player, self.collision_sprites, False, pg.sprite.collide_mask)
+        if hit:
+            LIFE += 1
+    
     # run method
     def run(self):
         p_time = time.time()
@@ -129,6 +135,11 @@ class Game:
                     self.player.jump()
                 if event.type == self.pipe_timer and self.active:
                     Pipe([self.all_sprites, self.collision_sprites], self.sf / 4.9)
+                    spawn = randint(1,10)
+                    if spawn == 1:
+                        Life([self.all_sprites, self.life_collisions],self.sf / 7)
+                    else:
+                        pass
                 # while playing game, pass; while not playing and on "play again" screen, pressing "y" will respawn the player and reset the time
                 if keys[pg.K_y]:
                     if self.active == True:
@@ -169,7 +180,7 @@ class Player(Sprite):
         self.image = scaled_image
         # makes starting position of image at midleft point by dividing width by 20 and height by 2 to get coordinates
         self.rect = self.image.get_rect(midleft = (WIDTH / 20, HEIGHT / 2))
-        self.pos = self.rect
+        self.pos = pg.math.Vector2(self.rect.topleft)
         # gets rid of transparent pixels in image so they cannot touch the ground or pipes
         self.mask = pg.mask.from_surface(self.image)
     # method for jump mechanic
@@ -187,6 +198,19 @@ class Player(Sprite):
         # creates ceiling by resetting y-coordinate to 0 whenever it is 0 or less than that
         if self.rect.y <= 0:
             self.pos.y = 0
+
+class Life(Sprite):
+    def __init__(self, groups, sf):
+        super().__init__(groups)
+        life_image = pg.image.load(os.path.join(img_folder, 'random.png')).convert_alpha()
+        self.image = pg.transform.scale(life_image,pg.math.Vector2(life_image.get_size())* sf)
+        self.image.blit(self.image,(0,0))
+        self.rect = self.image.get_rect(midbottom = (WIDTH / .6, HEIGHT / 1.9))
+        self.pos = pg.math.Vector2(self.rect.topleft)
+        self.mask = pg.mask.from_surface(self.image)
+    def update(self, delta_time):
+        self.pos.x -= 200 * delta_time
+        self.rect.x = self.pos.x
 
 class Back(Sprite):
     def __init__(self, groups, sf):
@@ -207,7 +231,7 @@ class Back(Sprite):
         self.image.blit(done_image,(done_width,0))
         # sets top left as (0,0) and draws fully sized image there
         self.rect = self.image.get_rect(topleft = (0,0))
-        self.pos = self.rect
+        self.pos = pg.math.Vector2(self.rect.topleft)
     # update method
     def update(self, delta_time):
         # determines speed of camera movement
@@ -231,7 +255,7 @@ class Ground(Sprite):
         self.image.blit(self.image,(0,WIDTH))
         # sets top left as (0,0) and draws fully sized image there
         self.rect = self.image.get_rect(bottomleft = (0,HEIGHT))
-        self.pos = self.rect
+        self.pos = pg.math.Vector2(self.rect.topleft)
         # gets rid of transparent pixels in image so they cannot touch the player
         self.mask = pg.mask.from_surface(self.image)
     # update method
@@ -266,7 +290,7 @@ class Pipe(Sprite):
             y = randint(-20, 0)
             # places image on middle right top of screen
             self.rect = self.image.get_rect(midtop = (x,y))
-        self.pos = self.rect
+        self.pos = pg.math.Vector2(self.rect.topleft)
         # gets rid of transparent pixels in image so they cannot touch player
         self.mask = pg.mask.from_surface(self.image)
     # update method
