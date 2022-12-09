@@ -100,7 +100,7 @@ class Game:
         # variable for # of initial lives
         self.life = 1
     # collision method
-    def collisions(self):
+    def collisions(self, delta_time):
         if self.life > 0:
             # if player has lives and hits a pipe, the pipe is broken and 1 life is lost
             hit = pg.sprite.spritecollide(self.player, self.collision_sprites, True, pg.sprite.collide_mask)
@@ -126,6 +126,8 @@ class Game:
                 sprite.kill()
             for sprite in self.pwr_collision_sprites.sprites():
                 sprite.kill()
+            self.back.pos.x += 150 * delta_time
+            self.ground.pos.x += 200 * delta_time
     # method for star collisions
     def p_collisions(self):
         # if it hits, the star is deleted and 1 star is added to counter
@@ -200,7 +202,7 @@ class Game:
             self.clock.tick(FPS) # calling framrate
             self.all_sprites.update(delta_time) # updates sprites with delta time
             self.all_sprites.draw(self.display_surface) # draws sprites
-            self.collisions()
+            self.collisions(delta_time)
             self.p_collisions()
             self.pwr_collisions()
             draw_text("TIME: " + str(TIME) + ' SECONDS', 22, BLACK, WIDTH / 2, HEIGHT / 24) # displays time (from pygame assignment)
