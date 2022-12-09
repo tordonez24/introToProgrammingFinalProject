@@ -97,15 +97,10 @@ class Game:
         hit = pg.sprite.spritecollide(self.player, self.collision_sprites, False, pg.sprite.collide_mask)
         if hit:
             self.active = False
-            LIFE -= 1
+            self.player.kill()
         # loads play again image
         if self.active == False:
             self.display_surface.blit(self.pagain_surface, self.pagain_rect)
-    def life_collisions(self):
-        hit = pg.sprite.spritecollide(self.player, self.collision_sprites, False, pg.sprite.collide_mask)
-        if hit:
-            LIFE += 1
-    
     # run method
     def run(self):
         p_time = time.time()
@@ -135,11 +130,6 @@ class Game:
                     self.player.jump()
                 if event.type == self.pipe_timer and self.active:
                     Pipe([self.all_sprites, self.collision_sprites], self.sf / 4.9)
-                    spawn = randint(1,10)
-                    if spawn == 1:
-                        Life([self.all_sprites, self.life_collisions],self.sf / 7)
-                    else:
-                        pass
                 # while playing game, pass; while not playing and on "play again" screen, pressing "y" will respawn the player and reset the time
                 if keys[pg.K_y]:
                     if self.active == True:
@@ -198,19 +188,6 @@ class Player(Sprite):
         # creates ceiling by resetting y-coordinate to 0 whenever it is 0 or less than that
         if self.rect.y <= 0:
             self.pos.y = 0
-
-class Life(Sprite):
-    def __init__(self, groups, sf):
-        super().__init__(groups)
-        life_image = pg.image.load(os.path.join(img_folder, 'random.png')).convert_alpha()
-        self.image = pg.transform.scale(life_image,pg.math.Vector2(life_image.get_size())* sf)
-        self.image.blit(self.image,(0,0))
-        self.rect = self.image.get_rect(midbottom = (WIDTH / .6, HEIGHT / 1.9))
-        self.pos = pg.math.Vector2(self.rect.topleft)
-        self.mask = pg.mask.from_surface(self.image)
-    def update(self, delta_time):
-        self.pos.x -= 200 * delta_time
-        self.rect.x = self.pos.x
 
 class Back(Sprite):
     def __init__(self, groups, sf):
