@@ -173,7 +173,7 @@ class Game:
                     chance = randint(1,2)
                     if chance == 1: # 50% chance to spawn a star somwhere on the screen
                         Star([self.all_sprites, self.p_collision_sprites], self.sf / 10)
-                    chance1 = randint(1,20) # 5% chance to spawn an extra life in middle of screen
+                    chance1 = randint(1,12) # 8% chance to spawn an extra life in middle of screen
                     if chance1 == 1:
                         Pwrup([self.all_sprites, self.pwr_collision_sprites], self.sf / 17)
                 # while playing game, pass; while not playing and on "play again" screen, pressing "y" will respawn the player and reset the time, lives, and stars
