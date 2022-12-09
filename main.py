@@ -41,7 +41,6 @@ GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 YELLOW = (244, 255, 0)
 
-
 # defines the function that visually draws text (from game we made in class)
 def draw_text(text, size, color, x, y):
         font_name = pg.font.match_font('arial')
@@ -76,6 +75,8 @@ class Game:
         # create groups
         self.all_sprites = pg.sprite.Group() # all existing sprites
         self.collision_sprites = pg.sprite.Group() # floor, pipes, and player (sprites that can be collided with)
+        self.p_collision_sprites = pg.sprite.Group()
+        self.pwr_collision_sprites = pg.sprite.Group()
         # creates scale factor by getting height of window and dividing it by height of background image file
         back_height = pg.image.load(os.path.join(img_folder, 'background.jpg')).convert_alpha().get_height()
         self.sf = HEIGHT / back_height
@@ -84,6 +85,7 @@ class Game:
         pg.time.set_timer(self.pipe_timer, 1400)
         # part of resetting timer when playing again after death
         self.restart = 0
+        self.restart1 = 0
         # instantiate classes
         self.back = Back(self.all_sprites, self.sf)
         self.ground = Ground([self.all_sprites, self.collision_sprites], self.sf/ 2)
@@ -92,15 +94,29 @@ class Game:
         self.pagain_surface = pg.image.load(os.path.join(img_folder, 'pagain.png')).convert_alpha()
         # places image in center of screen
         self.pagain_rect = self.pagain_surface.get_rect(center = (WIDTH / 2, HEIGHT / 3.5))
+        self.stars = 0
+        self.life = 1
     # collision method
     def collisions(self):
         hit = pg.sprite.spritecollide(self.player, self.collision_sprites, False, pg.sprite.collide_mask)
         if hit:
+            self.life -=1
+            print(self.life)
+        if self.life <= 0:
             self.active = False
             self.player.kill()
         # loads play again image
         if self.active == False:
             self.display_surface.blit(self.pagain_surface, self.pagain_rect)
+    def p_collisions(self):
+        hit = pg.sprite.spritecollide(self.player, self.p_collision_sprites, True)
+        if hit:
+            self.stars += 1
+    def pwr_collisions(self):
+        hit = pg.sprite.spritecollide(self.player, self.pwr_collision_sprites, True)
+        if hit:
+            self.life +=1
+            print(self.life)
     # run method
     def run(self):
         p_time = time.time()
@@ -115,6 +131,8 @@ class Game:
             if self.active == True:
                 ticks = (pg.time.get_ticks() - self.restart)
                 TIME = ticks / 1000
+            if self.active == True:
+                stars = self.stars- self.restart1
             # event for loop
             for event in pg.event.get():
                 if event.type == pg.MOUSEBUTTONDOWN:
@@ -130,14 +148,17 @@ class Game:
                     self.player.jump()
                 if event.type == self.pipe_timer and self.active:
                     Pipe([self.all_sprites, self.collision_sprites], self.sf / 4.9)
+                    Star([self.all_sprites, self.p_collision_sprites], self.sf / 10)
+                    Pwrup([self.all_sprites, self.pwr_collision_sprites], self.sf / 17)
                 # while playing game, pass; while not playing and on "play again" screen, pressing "y" will respawn the player and reset the time
                 if keys[pg.K_y]:
                     if self.active == True:
-                        pass
+                        self.life = 1
                     if self.active == False:
                         self.player = Player(self.all_sprites, self.sf / 25)
                         self.active = True
                         self.restart = pg.time.get_ticks()
+                        self.restart1 = self.stars
                 # if window is closed, everything quits
                 if event.type == pg.QUIT:
                     pg.quit()
@@ -154,7 +175,11 @@ class Game:
             self.all_sprites.update(delta_time) # updates sprites with delta time
             self.all_sprites.draw(self.display_surface) # draws sprites
             self.collisions()
+            self.p_collisions()
+            self.pwr_collisions()
             draw_text("TIME: " + str(TIME) + ' SECONDS', 22, BLACK, WIDTH / 2, HEIGHT / 24) # displays time (from pygame assignment)
+            draw_text("STARS: " + str(stars), 22, BLACK, WIDTH / 2, HEIGHT / 14)
+            draw_text("LIVES: " + str(self.life), 22, BLACK, WIDTH / 2, HEIGHT / 10)
             pg.display.update()
 
 class Player(Sprite):
@@ -243,6 +268,38 @@ class Ground(Sprite):
         if self.rect.centerx <= 0:
             self.pos.x = 0
         self.rect.x = self.pos.x
+
+class Star(Sprite):
+    def __init__(self, groups, sf):
+        super().__init__(groups)
+        x = WIDTH
+        y = HEIGHT- randint (50,800)
+        star_image = pg.image.load(os.path.join(img_folder, 'star.png')).convert_alpha()
+        self.image = pg.transform.scale(star_image,pg.math.Vector2(star_image.get_size())* sf)
+        self.rect = self.image.get_rect(center = (x,y))
+        self.pos = pg.math.Vector2(self.rect.topleft)
+        self.mask = pg.mask.from_surface(self.image)
+    def update(self, delta_time):
+        self.pos.x -= 200 * delta_time
+        self.rect.x = self.pos.x 
+        if self.rect.right <= -200:
+            self.kill()
+
+class Pwrup(Sprite):
+    def __init__(self, groups, sf):
+        super().__init__(groups)
+        x = WIDTH / 2
+        y = HEIGHT / 2
+        star_image = pg.image.load(os.path.join(img_folder, 'heart.jpg')).convert_alpha()
+        self.image = pg.transform.scale(star_image,pg.math.Vector2(star_image.get_size())* sf)
+        self.rect = self.image.get_rect(center = (x,y))
+        self.pos = pg.math.Vector2(self.rect.topleft)
+        self.mask = pg.mask.from_surface(self.image)
+    def update(self, delta_time):
+        self.pos.x -= 200 * delta_time
+        self.rect.x = self.pos.x 
+        if self.rect.right <= -200:
+            self.kill()
 
 class Pipe(Sprite):
     def __init__(self, groups, sf):
