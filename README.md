@@ -28,6 +28,7 @@ code blocks for commands
 ## Help
 
 Make sure pygame is installed https://www.geeksforgeeks.org/how-to-install-pygame-in-windows/
+
 For "play again" screen when it says "y or n," press the "y" key to play again, or press the "n" key to quit to the game. 
 
 ## Authors
