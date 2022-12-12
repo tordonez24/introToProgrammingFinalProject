@@ -1,5 +1,6 @@
 '''
-My final project is Flappy Fish. Flappy Fish is a spinoff of Flappy Bird, which is a single player 2D game. The objective is to avoid the pillars that can kill you and get the longest time alive.
+Tyler Ordonez
+My final project is Flappy Fish. Flappy Fish is a spinoff of Flappy Bird, which is a single player 2D game. The objective is to avoid the pillars that can kill you and get the longest time alive and the most stars.
 '''
 
 '''
@@ -16,22 +17,22 @@ https://stackoverflow.com/questions/29885777/how-to-make-the-background-of-a-pyg
 https://stackoverflow.com/questions/35304498/what-are-the-pygame-surface-get-rect-key-arguments
 my sister cropped the images on her ipad
 https://www.pygame.org/docs/ref/mask.html#pygame.mask.from_surface
-my friend who knows pygame
+my friend who knows pygame and python in general
 '''
 
 # imported libraries
+# programming language library for making applications like games
 import pygame as pg
 from pygame.sprite import Sprite
-import sys
-import time
 
 # built in libraries
-# import random
-from random import randint
-import os
+from random import * # used to generate pseudo-random variables; EX: generate random numbers; choose single option from multiple options
+import sys # provides functions and variables that are used to change different parts of runtime environment
+import time # allows to work with time in Python; EX: getting current time, pausing the program
+import os # provides functions for interacting with the operating system
 
 # created libraries
-from settings import *
+from settings import * # contains height and width of window, time, and FPS variables; the * imports everything from it
 
 # global variables
 WHITE = (255, 255, 255)
