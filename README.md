@@ -4,13 +4,13 @@ Flappy Fish
 
 ## Description
 
-A spinoff of Flappy Bird, which is a single player 2D game. The objective is to avoid the pillars that can kill you and get the highest possible score. Each pillar past gives you 1 point.
+Flappy Fish is a spinoff of Flappy Bird, which is a single player 2D game. The objective is to avoid the pillars that can kill you and get the longest time alive and the most stars.
 
 ## Getting Started
 
 ### Dependencies
 
-need to install Pygame
+Need to install Pygame https://www.geeksforgeeks.org/how-to-install-pygame-in-windows/
 
 ### Installing
 
@@ -27,10 +27,9 @@ code blocks for commands
 
 ## Help
 
-Any advice for common problems or issues.
-```
-command to run if program contains helper info
-```
+Make sure pygame is installed https://www.geeksforgeeks.org/how-to-install-pygame-in-windows/
+
+For "play again" screen when it says "y or n," press the "y" key to play again, or press the "n" key to quit to the game. 
 
 ## Authors
 
@@ -39,9 +38,6 @@ tyler.m.ordonez@gmail.com
 
 ## Version History
 
-* 0.2
-    * Various bug fixes and optimizations
-    * See [commit change]() or See [release history]()
 * 0.1
     * Initial Release
 
@@ -51,7 +47,5 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Acknowledgments
 
-Inspiration, code snippets, etc.
-* [w3Schools](https://www.w3schools.com/python/default.asp)
+* [Tutorial I Used](https://www.youtube.com/watch?v=VUFvY349ess&t=17s)
 * [PyGame](https://www.pygame.org/docs/)
-* [Automate The Boring Stuff](https://automatetheboringstuff.com/)
