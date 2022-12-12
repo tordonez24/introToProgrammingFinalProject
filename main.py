@@ -27,7 +27,7 @@ import time
 
 # built in libraries
 # import random
-from random import choice, randint
+from random import randint
 import os
 
 # created libraries
