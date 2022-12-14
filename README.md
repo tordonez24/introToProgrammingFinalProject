@@ -14,8 +14,9 @@ Need to install Pygame https://www.geeksforgeeks.org/how-to-install-pygame-in-wi
 
 ### Installing
 
-Can be run in Visual Stuido Code;
-No modifications to files/folders needed
+Can be run in Visual Stuido Code
+
+Need to download images folder
 
 ### Executing program
 
