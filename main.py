@@ -77,7 +77,7 @@ class Game:
         self.all_sprites = pg.sprite.Group() # all existing sprites
         self.collision_sprites = pg.sprite.Group() # pipe collision
         self.g_collision_sprites = pg.sprite.Group() # ground collision
-        self.p_collision_sprites = pg.sprite.Group() # star collision
+        self.star_collision_sprites = pg.sprite.Group() # star collision
         self.pwr_collision_sprites = pg.sprite.Group() # extra life collision
         # creates scale factor by getting height of window and dividing it by height of background image file
         back_height = pg.image.load(os.path.join(img_folder, 'background.jpg')).convert_alpha().get_height()
@@ -87,7 +87,7 @@ class Game:
         pg.time.set_timer(self.pipe_timer, 1400)
         # part of resetting timer, lives, and stars when playing again after death
         self.restart = 0
-        self.restart1 = 0
+        self.star_restart = 0
         # instantiate classes
         self.back = Back(self.all_sprites, self.sf)
         self.ground = Ground([self.all_sprites, self.g_collision_sprites], self.sf/ 2)
@@ -123,16 +123,16 @@ class Game:
             self.display_surface.blit(self.pagain_surface, self.pagain_rect)
             for sprite in self.collision_sprites.sprites():
                 sprite.kill()
-            for sprite in self.p_collision_sprites.sprites():
+            for sprite in self.star_collision_sprites.sprites():
                 sprite.kill()
             for sprite in self.pwr_collision_sprites.sprites():
                 sprite.kill()
             self.back.pos.x += 150 * delta_time
             self.ground.pos.x += 200 * delta_time
     # method for star collisions
-    def p_collisions(self):
+    def star_collisions(self):
         # if it hits, the star is deleted and 1 star is added to counter
-        hit = pg.sprite.spritecollide(self.player, self.p_collision_sprites, True)
+        hit = pg.sprite.spritecollide(self.player, self.star_collision_sprites, True)
         if hit:
             self.stars += 1
     # method for heart collisions
@@ -156,7 +156,7 @@ class Game:
             if self.alive == True:
                 ticks = (pg.time.get_ticks() - self.restart)
                 TIME = ticks / 1000
-                stars = self.stars- self.restart1
+                stars = self.stars- self.star_restart
             # event for loop
             for event in pg.event.get():
                 # setting different keys for jump mechanic
@@ -175,7 +175,7 @@ class Game:
                     Pipe([self.all_sprites, self.collision_sprites], self.sf / 4.9)
                     chance = randint(1,2)
                     if chance == 1: # 50% chance to spawn a star somwhere on the screen
-                        Star([self.all_sprites, self.p_collision_sprites], self.sf / 10)
+                        Star([self.all_sprites, self.star_collision_sprites], self.sf / 10)
                     chance1 = randint(1,12) # 8% chance to spawn an extra life in middle of screen
                     if chance1 == 1:
                         Pwrup([self.all_sprites, self.pwr_collision_sprites], self.sf / 17)
@@ -188,7 +188,7 @@ class Game:
                         self.alive = True
                         self.life = 1
                         self.restart = pg.time.get_ticks()
-                        self.restart1 = self.stars
+                        self.star_restart = self.stars
                 # if window is closed, everything quits
                 if event.type == pg.QUIT:
                     pg.quit()
@@ -205,7 +205,7 @@ class Game:
             self.all_sprites.update(delta_time) # updates sprites with delta time
             self.all_sprites.draw(self.display_surface) # draws sprites
             self.collisions(delta_time)
-            self.p_collisions()
+            self.star_collisions()
             self.pwr_collisions()
             draw_text("TIME: " + str(TIME) + ' SECONDS', 22, BLACK, WIDTH / 2, HEIGHT / 24) # displays time (from pygame assignment)
             draw_text("STARS: " + str(stars), 22, BLACK, WIDTH / 2, HEIGHT / 14)
