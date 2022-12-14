@@ -16,11 +16,11 @@ Need to install [Pygame](https://www.geeksforgeeks.org/how-to-install-pygame-in-
 
 ### Installing
 
-Can be run in Visual Stuido Code or on Python through file
+Can be run on Python through file
 
 ### Executing program
 
-can be run on Python through file or VS Code
+Can be run on Python through file
 
 ## Help
 
