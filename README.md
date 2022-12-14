@@ -46,5 +46,5 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Acknowledgments
 
-* [Tutorial I Used](https://www.youtube.com/watch?v=VUFvY349ess&t=17s)
+* [Inspiration Video](https://www.youtube.com/watch?v=VUFvY349ess&t=17s)
 * [PyGame](https://www.pygame.org/docs/)
