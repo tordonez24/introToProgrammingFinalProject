@@ -26,7 +26,7 @@ import pygame as pg
 from pygame.sprite import Sprite
 
 # built in libraries
-from random import * # used to generate pseudo-random variables; EX: generate random numbers; choose single option from multiple options
+from random import * # used to generate pseudo-random variables; EX: generate random numbers, choose single option from multiple options
 import sys # provides functions and variables that are used to change different parts of runtime environment
 import time # allows to work with time in Python; EX: getting current time, pausing the program
 import os # provides functions for interacting with the operating system
@@ -34,7 +34,7 @@ import os # provides functions for interacting with the operating system
 # created libraries
 from settings import * # contains height and width of window, time, and FPS variables; the * imports everything from it
 
-# global variables
+# global variables for colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
@@ -182,10 +182,11 @@ class Game:
                 # while playing game, pass; while not playing and on "play again" screen, pressing "y" will respawn the player and reset the time, lives, and stars
                 if keys[pg.K_y]:
                     if self.alive == True:
-                        self.life = 1
+                        pass
                     if self.alive == False:
                         self.player = Player(self.all_sprites, self.sf / 25)
                         self.alive = True
+                        self.life = 1
                         self.restart = pg.time.get_ticks()
                         self.restart1 = self.stars
                 # if window is closed, everything quits
@@ -323,7 +324,7 @@ class Pwrup(Sprite):
         # coords so it spawns in right center of screen
         x = WIDTH
         y = HEIGHT / 2
-        star_image = pg.image.load(os.path.join(img_folder, 'heart.jpg')).convert_alpha() # loads image
+        star_image = pg.image.load(os.path.join(img_folder, 'heart.png')).convert_alpha() # loads image
         self.image = pg.transform.scale(star_image,pg.math.Vector2(star_image.get_size())* sf) # scales image
         self.rect = self.image.get_rect(center = (x,y))
         self.pos = pg.math.Vector2(self.rect.topleft)
