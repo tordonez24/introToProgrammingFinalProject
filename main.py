@@ -179,10 +179,10 @@ class Game:
                 if event.type == self.pipe_timer and self.alive:
                     Pipe_Bottom([self.all_sprites, self.collision_sprites], self.sf / 4.9, self.y1)
                     Pipe_Top([self.all_sprites, self.collision_sprites], self.sf / 4.9, self.y2)
-                    chance = randint(1,2)
-                    if chance == 1: # 50% chance to spawn a star somewhere on the screen
+                    chance = randint(1,4)
+                    if chance == 1: # 25% chance to spawn a star somewhere on the screen
                         Star([self.all_sprites, self.star_collision_sprites], self.sf / 10)
-                    chance1 = randint(1,20) # 5% chance to spawn an extra life in middle of screen
+                    chance1 = randint(1,12) # 8% chance to spawn an extra life in middle of screen
                     if chance1 == 1:
                         Pwrup([self.all_sprites, self.pwr_collision_sprites], self.sf / 17)
                 # while alive and playing game, nothing will happen; while not playing, dead, and on "play again" screen, pressing "y" will respawn the player and reset the time, lives, and stars
@@ -303,7 +303,7 @@ class Star(Sprite):
     def __init__(self, groups, sf):
         super().__init__(groups)
         x = WIDTH
-        y = HEIGHT- randint (50,800) # can spawn at any height on visible screen
+        y = HEIGHT / 2
         star_image = pg.image.load(os.path.join(img_folder, 'star.png')).convert_alpha() # loads image of star
         self.image = pg.transform.scale(star_image,pg.math.Vector2(star_image.get_size())* sf) # scales star
         # sets x,y as center and draws image there
