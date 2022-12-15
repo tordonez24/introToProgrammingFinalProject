@@ -70,9 +70,6 @@ class Game:
         self.display_surface = screen
         # displays title of game
         pg.display.set_caption('Flappy Fish')
-        # time module/clock
-        self.clock = clock
-        self.alive = True
         # create groups
         self.all_sprites = pg.sprite.Group() # all existing sprites
         self.collision_sprites = pg.sprite.Group() # pipe collision
@@ -88,13 +85,17 @@ class Game:
         # part of resetting timer, lives, and stars when playing again after death
         self.restart = 0
         self.star_restart = 0
+        # time module/clock
+        self.clock = clock
+        # living status
+        self.alive = True
         # instantiate classes
-        self.back = Back(self.all_sprites, self.sf)
+        self.back = Back(self.all_sprites, self.sf / 1.72)
         self.ground = Ground([self.all_sprites, self.g_collision_sprites], self.sf/ 2)
         self.player = Player(self.all_sprites, self.sf / 25)
         # loads play again image
         self.pagain_surface = pg.image.load(os.path.join(img_folder, 'pagain.png')).convert_alpha()
-        # places image in center of screen
+        # play again image's coordinatess are established
         self.pagain_rect = self.pagain_surface.get_rect(center = (WIDTH / 2, HEIGHT / 3.5))
         # variable for # of initial stars
         self.stars = 0
@@ -104,16 +105,16 @@ class Game:
     def collisions(self, delta_time):
         if self.life > 0:
             # if player has lives and hits a pipe, the pipe is broken and 1 life is lost
-            hit = pg.sprite.spritecollide(self.player, self.collision_sprites, True, pg.sprite.collide_mask)
-            if hit:
+            pipe_hit = pg.sprite.spritecollide(self.player, self.collision_sprites, True, pg.sprite.collide_mask)
+            if pipe_hit:
                 self.life -= 1
-            # if player has lives and hits the ground, the player is teleported back to centermiddle and 1 life is lost
-            hits = pg.sprite.spritecollide(self.player, self.g_collision_sprites, False, pg.sprite.collide_mask)
-            if hits:
+            # if player has lives and hits the ground, the player is teleported back to centermiddle and only 1 life is lost
+            ground_hit = pg.sprite.spritecollide(self.player, self.g_collision_sprites, False, pg.sprite.collide_mask)
+            if ground_hit:
                 self.player.pos.y = HEIGHT / 2
-                self.player.direct = 0
+                self.player.vel = 0
                 self.life -= 1
-        # if lives are 0 or negative, delete player sprite and set self.alive to False
+        # if lives are 0 or negative, resets lives to 0, deletes player sprite, and set alive status to False
         if self.life <= 0:
             self.life = 0
             self.alive = False
@@ -127,6 +128,7 @@ class Game:
                 sprite.kill()
             for sprite in self.pwr_collision_sprites.sprites():
                 sprite.kill()
+            # stops movement of ground and background
             self.back.pos.x += 150 * delta_time
             self.ground.pos.x += 200 * delta_time
     # method for star collisions
@@ -189,20 +191,20 @@ class Game:
                         self.life = 1
                         self.restart = pg.time.get_ticks()
                         self.star_restart = self.stars
-                # if window is closed, everything quits
-                if event.type == pg.QUIT:
-                    pg.quit()
-                    sys.exit()
-                # if player presses "n" key on play again screen, window closes and everything quits
+                # while playing game, pass; if player presses "n" key on play again screen, window closes and everything quits
                 if keys[pg.K_n]:
                     if self.alive == True:
                         pass
                     if self.alive == False:
                         pg.quit()
                         sys.exit()
+                # if window is closed, everything quits
+                if event.type == pg.QUIT:
+                    pg.quit()
+                    sys.exit()
             # updating pygame
             self.clock.tick(FPS) # calling framrate
-            self.all_sprites.update(delta_time) # updates sprites with delta time
+            self.all_sprites.update(delta_time) # updates sprites through delta time
             self.all_sprites.draw(self.display_surface) # draws sprites
             self.collisions(delta_time)
             self.star_collisions()
@@ -210,14 +212,12 @@ class Game:
             draw_text("TIME: " + str(TIME) + ' SECONDS', 22, BLACK, WIDTH / 2, HEIGHT / 24) # displays time (from pygame assignment)
             draw_text("STARS: " + str(stars), 22, BLACK, WIDTH / 2, HEIGHT / 14)
             draw_text("LIVES: " + str(self.life), 22, BLACK, WIDTH / 2, HEIGHT / 10)
+            draw_text("FPS: " + str(self.clock.tick(FPS)), 22, BLACK, WIDTH - 80, HEIGHT / 24)
             pg.display.update()
 
 class Player(Sprite):
     def __init__(self, groups, sf):
         super().__init__(groups)
-        # gravity and velocity
-        self.gravity = 700
-        self.direct = 0
         # loads player image
         player_image = pg.image.load(os.path.join(img_folder, 'fish.png')).convert_alpha()
         # scales player image
@@ -228,52 +228,47 @@ class Player(Sprite):
         self.pos = pg.math.Vector2(self.rect.topleft)
         # gets rid of transparent pixels in image so they cannot touch the ground or pipes
         self.mask = pg.mask.from_surface(self.image)
+        # gravity and velocity
+        self.gravity = 700
+        self.vel = 0
     # method for jump mechanic
     def jump(self):
-        self.direct = -300
-     # method for gravity
-    def grav(self, delta_time):
-        self.direct += self.gravity * delta_time
-        self.pos.y += self.direct * delta_time
-        self.rect.y = self.pos.y
+        self.vel = -300
     # update method
     def update(self, delta_time):
-        # create methods with delta time for movement
-        self.grav(delta_time)
+        # gravity
+        self.vel += self.gravity * delta_time
+        self.pos.y += self.vel * delta_time
+        self.rect.y = self.pos.y
         # creates ceiling by resetting y-coordinate to 0 whenever it is 0 or less than that
         if self.rect.y <= 0:
             self.pos.y = 0
+        # creates floor by resetting y-coordinate to 850 whenever it is 850 or higher
+        if self.rect.y >= 850:
+            self.pos.y = 850
 
 class Back(Sprite):
     def __init__(self, groups, sf):
         super().__init__(groups)
         # loads background image
-        back_image = pg.image.load(os.path.join(img_folder, 'Background.jpg')).convert_alpha()
-        # gets height of original image and multiplies it by scale factor to get correct size to fit window
-        done_height = back_image.get_height() * sf
-        # gets width of original image and multiplies it by scale factor to get correct size to fit window
-        done_width = back_image.get_width() * sf
-        # transforms original image into fully sized image for background
-        done_image = pg.transform.scale(back_image,(done_width, done_height))
-        # create surface twice as wide as original background image to make double background for final image
-        self.image = pg.Surface((done_width * 2, done_height))
-        # places fully sized image at (0,0)
-        self.image.blit(done_image,(0,0))
-        # places fully sized image directly after first fully sized image to create double background
-        self.image.blit(done_image,(done_width,0))
-        # sets top left as (0,0) and draws fully sized image there
-        self.rect = self.image.get_rect(topleft = (0,0))
-        self.pos = pg.math.Vector2(self.rect.topleft)
+        back_image = pg.image.load(os.path.join(img_folder, 'background.png')).convert_alpha()
+        self.width = back_image.get_width() * sf
+        # scales original ground image for final self.image
+        self.image = pg.transform.scale(back_image, pg.math.Vector2(back_image.get_size()) * sf)
+        self.image.blit(self.image,(0,0))
+        # sets bottom left as (0,height) and puts image there
+        self.rect = self.image.get_rect(bottomleft = (0,HEIGHT))
+        self.pos = pg.math.Vector2(self.rect.bottomleft)
     # update method
     def update(self, delta_time):
-        # determines speed of camera movement
+        # determines speed of background movement
         self.pos.x -= 150 * delta_time
-        # if centerx is less than 0, reset the positiion to centerx = 0
+        # if centerx is less than 0, reset the positiion to x = 0
         if self.rect.centerx <= 0:
             self.pos.x = 0
         self.rect.x = self.pos.x
 
-# similar to background sprite, but less complicated
+# similar to background sprite
 class Ground(Sprite):
     def __init__(self, groups, sf):
         super().__init__(groups)
@@ -281,20 +276,19 @@ class Ground(Sprite):
         ground_image = pg.image.load(os.path.join(img_folder, 'ground.png')).convert_alpha()
         # scales original ground image for final self.image
         self.image = pg.transform.scale(ground_image, pg.math.Vector2(ground_image.get_size()) * sf)
-        # places fully sized image at (0,0)
+        # creates double ground
         self.image.blit(self.image,(0,0))
-        # places fully sized image directly after fully sized image at (0,0) to create double ground
         self.image.blit(self.image,(0,WIDTH))
-        # sets top left as (0,0) and draws fully sized image there
+        # sets bottom left as (0,height) and puts image there
         self.rect = self.image.get_rect(bottomleft = (0,HEIGHT))
-        self.pos = pg.math.Vector2(self.rect.topleft)
+        self.pos = pg.math.Vector2(self.rect.bottomleft)
         # gets rid of transparent pixels in image so they cannot touch the player
         self.mask = pg.mask.from_surface(self.image)
     # update method
     def update(self, delta_time):
-        # determines speed of camera movement
+        # determines speed of ground movement
         self.pos.x -= 200 * delta_time
-        # if centerx is less than 0, reset the positiion to centerx = 0
+        # if centerx is less than 0, reset the position to x = 0
         if self.rect.centerx <= 0:
             self.pos.x = 0
         self.rect.x = self.pos.x
@@ -306,8 +300,9 @@ class Star(Sprite):
         y = HEIGHT- randint (50,800) # can spawn at any height on visible screen
         star_image = pg.image.load(os.path.join(img_folder, 'star.png')).convert_alpha() # loads image of star
         self.image = pg.transform.scale(star_image,pg.math.Vector2(star_image.get_size())* sf) # scales star
+        # sets x,y as center and draws image there
         self.rect = self.image.get_rect(center = (x,y))
-        self.pos = pg.math.Vector2(self.rect.topleft)
+        self.pos = pg.math.Vector2(self.rect.center)
         # gets rid of transparent pixels in image so they cannot touch the player
         self.mask = pg.mask.from_surface(self.image)
     def update(self, delta_time):
@@ -315,19 +310,20 @@ class Star(Sprite):
         self.pos.x -= 200 * delta_time
         self.rect.x = self.pos.x
         # if it goes 200 units to the left, kill
-        if self.rect.right <= -200:
+        if self.rect.x <= -200:
             self.kill()
 
 class Pwrup(Sprite):
     def __init__(self, groups, sf):
         super().__init__(groups)
-        # coords so it spawns in right center of screen
+        # cords so it spawns in right center of screen
         x = WIDTH
         y = HEIGHT / 2
         star_image = pg.image.load(os.path.join(img_folder, 'heart.png')).convert_alpha() # loads image
         self.image = pg.transform.scale(star_image,pg.math.Vector2(star_image.get_size())* sf) # scales image
+        # sets x,y as center and draws image there
         self.rect = self.image.get_rect(center = (x,y))
-        self.pos = pg.math.Vector2(self.rect.topleft)
+        self.pos = pg.math.Vector2(self.rect.center)
         # gets rid of transparent pixels in image so they cannot touch the player
         self.mask = pg.mask.from_surface(self.image)
     def update(self, delta_time):
@@ -335,7 +331,7 @@ class Pwrup(Sprite):
         self.pos.x -= 200 * delta_time
         self.rect.x = self.pos.x
         # if it goes 200 units to the left, kill
-        if self.rect.right <= -200:
+        if self.rect.x <= -200:
             self.kill()
 
 class Pipe(Sprite):
@@ -370,7 +366,7 @@ class Pipe(Sprite):
         self.pos.x -= 200 * delta_time
         self.rect.x = self.pos.x 
         # if pipe goes 200 units to the left of screen, delete it
-        if self.rect.right <= -200:
+        if self.rect.x <= -200:
             self.kill()
 
 # runs game
