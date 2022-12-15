@@ -41,15 +41,6 @@ GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 YELLOW = (244, 255, 0)
 
-# defines the function that visually draws text (from game we made in class)
-def draw_text(text, size, color, x, y):
-        font_name = pg.font.match_font('arial')
-        font = pg.font.Font(font_name, size)
-        text_surface = font.render(text, True, color)
-        text_rect = text_surface.get_rect()
-        text_rect.midtop = (x, y)
-        screen.blit(text_surface, text_rect)
-
 # set up asset folders here for importing images
 introToProgrammingFinalProject_folder = os.path.dirname(__file__)
 img_folder = os.path.join(introToProgrammingFinalProject_folder, 'images')
@@ -142,6 +133,14 @@ class Game:
         hit = pg.sprite.spritecollide(self.player, self.pwr_collision_sprites, True)
         if hit:
             self.life +=1
+    # defines the method that visually draws text (from game we made in class)
+    def draw_text(self, text, size, color, x, y):
+        self.font_name = pg.font.match_font('arial')
+        self.font = pg.font.Font(self.font_name, size)
+        self.text_surface = self.font.render(text, True, color)
+        text_rect = self.text_surface.get_rect()
+        text_rect.midtop = (x, y)
+        screen.blit(self.text_surface, text_rect)
     # run method
     def run(self):
         p_time = time.time()
@@ -208,10 +207,10 @@ class Game:
             self.collisions(delta_time)
             self.star_collisions()
             self.pwr_collisions()
-            draw_text("TIME: " + str(TIME) + ' SECONDS', 22, BLACK, WIDTH / 2, HEIGHT / 24) # displays time (from pygame assignment)
-            draw_text("STARS: " + str(stars), 22, BLACK, WIDTH / 2, HEIGHT / 14)
-            draw_text("LIVES: " + str(self.life), 22, BLACK, WIDTH / 2, HEIGHT / 10)
-            draw_text("FPS: " + str(self.clock.tick(FPS)), 22, BLACK, WIDTH - 80, HEIGHT / 24)
+            self.draw_text("TIME: " + str(TIME) + ' SECONDS', 22, BLACK, WIDTH / 2, HEIGHT / 24) # displays time (from pygame assignment)
+            self.draw_text("STARS: " + str(stars), 22, BLACK, WIDTH / 2, HEIGHT / 14)
+            self.draw_text("LIVES: " + str(self.life), 22, BLACK, WIDTH / 2, HEIGHT / 10)
+            self.draw_text("FPS: " + str(self.clock.tick(FPS)), 22, BLACK, WIDTH - 80, HEIGHT / 24)
             pg.display.update()
 
 # regular sprite with jump mechanic and gravity
