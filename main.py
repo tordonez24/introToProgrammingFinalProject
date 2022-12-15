@@ -9,7 +9,6 @@ https://www.askpython.com/python/examples/flappy-bird-game-in-python
 https://www.youtube.com/watch?v=rWtfClpWSb8
 https://www.delftstack.com/howto/python-pygame/get_rect-pygame/
 https://www.geeksforgeeks.org/python-time-time-method/
-https://www.geeksforgeeks.org/python-datetime-timedelta-function/
 https://www.youtube.com/watch?v=v_linpA7uXo
 https://www.youtube.com/watch?v=VUFvY349ess&t=17s
 https://web.microsoftstream.com/video/b1bdbe8e-edc6-47a8-a2f9-c1aaf1b7930f
@@ -149,7 +148,7 @@ class Game:
         running = True
         # while loop
         while running:
-            # gets delta time, which is the time between the current and previous frame
+            # creates delta time, which is the time between the current and previous frame (https://www.youtube.com/watch?v=rWtfClpWSb8)
             # it accounts for all framerates and makes it consistent by being multiplied by every movement in game
             delta_time = time.time() - p_time
             p_time = time.time()
@@ -176,12 +175,12 @@ class Game:
                 if event.type == self.pipe_timer and self.alive:
                     Pipe([self.all_sprites, self.collision_sprites], self.sf / 4.9)
                     chance = randint(1,2)
-                    if chance == 1: # 50% chance to spawn a star somwhere on the screen
+                    if chance == 1: # 50% chance to spawn a star somewhere on the screen
                         Star([self.all_sprites, self.star_collision_sprites], self.sf / 10)
                     chance1 = randint(1,12) # 8% chance to spawn an extra life in middle of screen
                     if chance1 == 1:
                         Pwrup([self.all_sprites, self.pwr_collision_sprites], self.sf / 17)
-                # while playing game, pass; while not playing and on "play again" screen, pressing "y" will respawn the player and reset the time, lives, and stars
+                # while alive and playing game, nothing will happen; while not playing, dead, and on "play again" screen, pressing "y" will respawn the player and reset the time, lives, and stars
                 if keys[pg.K_y]:
                     if self.alive == True:
                         pass
@@ -191,7 +190,7 @@ class Game:
                         self.life = 1
                         self.restart = pg.time.get_ticks()
                         self.star_restart = self.stars
-                # while playing game, pass; if player presses "n" key on play again screen, window closes and everything quits
+                # while playing game, nothing will happen; while dead, if player presses "n" key on play again screen, window closes and everything quits
                 if keys[pg.K_n]:
                     if self.alive == True:
                         pass
@@ -215,6 +214,7 @@ class Game:
             draw_text("FPS: " + str(self.clock.tick(FPS)), 22, BLACK, WIDTH - 80, HEIGHT / 24)
             pg.display.update()
 
+# regular sprite with jump mechanic and gravity
 class Player(Sprite):
     def __init__(self, groups, sf):
         super().__init__(groups)
@@ -293,6 +293,7 @@ class Ground(Sprite):
             self.pos.x = 0
         self.rect.x = self.pos.x
 
+# basic moving sprite
 class Star(Sprite):
     def __init__(self, groups, sf):
         super().__init__(groups)
@@ -313,6 +314,7 @@ class Star(Sprite):
         if self.rect.x <= -200:
             self.kill()
 
+# almost exact same as star sprite, except this one can only spawn in the center row of the window where no pipes are
 class Pwrup(Sprite):
     def __init__(self, groups, sf):
         super().__init__(groups)
@@ -334,6 +336,7 @@ class Pwrup(Sprite):
         if self.rect.x <= -200:
             self.kill()
 
+# pretty much the exact same thing as powerup and star sprites, except it has a 50% chance to be flipped and placed on ceiling
 class Pipe(Sprite):
     def __init__(self, groups, sf):
         super().__init__(groups)
