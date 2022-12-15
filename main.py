@@ -91,6 +91,9 @@ class Game:
         self.stars = 0
         # variable for # of initial lives
         self.life = 1
+        # variables for y coordinates of pipes
+        self.y1 = 0
+        self.y2 = 0
     # collision method
     def collisions(self, delta_time):
         if self.life > 0:
@@ -151,11 +154,13 @@ class Game:
             # it accounts for all framerates and makes it consistent by being multiplied by every movement in game
             delta_time = time.time() - p_time
             p_time = time.time()
-            # creates a time in seconds
+            # semirandom y coordinate for pipes
+            self.y1 = HEIGHT + randint(0,150) # y value for bottom pipe w/ a random integer from 0-150 added
+            self.y2 = self.y1 - HEIGHT - 150 # y value for top pipe which is the y value for bottom pipe, but minus the window height and 150 pixels
             # when player is alive...
             if self.alive == True:
                 ticks = (pg.time.get_ticks() - self.restart)
-                TIME = ticks / 1000
+                TIME = ticks / 1000 # creates a time in seconds
                 stars = self.stars- self.star_restart
             # event for loop
             for event in pg.event.get():
@@ -172,11 +177,12 @@ class Game:
                     self.player.jump()
                 # when player is alive and timer is going...
                 if event.type == self.pipe_timer and self.alive:
-                    Pipe([self.all_sprites, self.collision_sprites], self.sf / 4.9)
+                    Pipe_Bottom([self.all_sprites, self.collision_sprites], self.sf / 4.9, self.y1)
+                    Pipe_Top([self.all_sprites, self.collision_sprites], self.sf / 4.9, self.y2)
                     chance = randint(1,2)
                     if chance == 1: # 50% chance to spawn a star somewhere on the screen
                         Star([self.all_sprites, self.star_collision_sprites], self.sf / 10)
-                    chance1 = randint(1,12) # 8% chance to spawn an extra life in middle of screen
+                    chance1 = randint(1,20) # 5% chance to spawn an extra life in middle of screen
                     if chance1 == 1:
                         Pwrup([self.all_sprites, self.pwr_collision_sprites], self.sf / 17)
                 # while alive and playing game, nothing will happen; while not playing, dead, and on "play again" screen, pressing "y" will respawn the player and reset the time, lives, and stars
@@ -336,29 +342,41 @@ class Pwrup(Sprite):
             self.kill()
 
 # pretty much the exact same thing as powerup and star sprites, except it has a 50% chance to be flipped and placed on ceiling
-class Pipe(Sprite):
-    def __init__(self, groups, sf):
+class Pipe_Bottom(Sprite):
+    def __init__(self, groups, sf, y1):
         super().__init__(groups)
-         # x value is same for all pipes, but here, it chooses a random value to add to the x value to shift it some units to the left when it spawns
-        x = WIDTH + randint(30,70)
+        x = PIPES_X
+        y = y1
         # loads pipe image
         pipe_image = pg.image.load(os.path.join(img_folder, 'pipe.png')).convert_alpha()
         # scales pipe image into final pipe image
         self.image = pg.transform.scale(pipe_image,pg.math.Vector2(pipe_image.get_size())* sf)
-        # chooses random element from sequence; in this case, it chooses whether the pipe is on the top or bottom
-        placement = randint(1,2)
-        # determines how far pipe sticks out when pipe is on the ground
-        if placement == 1:
-            y = HEIGHT + randint(20,45)
-            # places image on middle right bottom of screen
-            self.rect = self.image.get_rect(midbottom = (x,y))
-        # determines how far pipe sticks out when on top
-        if placement == 2:
-            # flips pipe vertically, but not horizontally
-            self.image = pg.transform.flip(self.image, False, True)
-            y = randint(-30, -10)
-            # places image on middle right top of screen
-            self.rect = self.image.get_rect(midtop = (x,y))
+        # places image on middle right bottom of screen
+        self.rect = self.image.get_rect(midbottom = (x,y))
+        self.pos = pg.math.Vector2(self.rect.topleft)
+        # gets rid of transparent pixels in image so they cannot touch player
+        self.mask = pg.mask.from_surface(self.image)
+    # update method
+    def update(self, delta_time):
+        # speed of pipes
+        self.pos.x -= 200 * delta_time
+        self.rect.x = self.pos.x 
+        # if pipe goes 200 units to the left of screen, delete it
+        if self.rect.x <= -200:
+            self.kill()
+
+class Pipe_Top(Sprite):
+    def __init__(self, groups, sf, y2):
+        super().__init__(groups)
+        x = PIPES_X
+        y = y2
+        # loads pipe image
+        pipe_image = pg.image.load(os.path.join(img_folder, 'pipe.png')).convert_alpha()
+        # scales pipe image into final pipe image
+        scaled_image = pg.transform.scale(pipe_image,pg.math.Vector2(pipe_image.get_size())* sf)
+        self.image = pg.transform.flip(scaled_image, False, True)
+        # places image on middle right top of screen
+        self.rect = self.image.get_rect(midtop = (x,y))
         self.pos = pg.math.Vector2(self.rect.topleft)
         # gets rid of transparent pixels in image so they cannot touch player
         self.mask = pg.mask.from_surface(self.image)
