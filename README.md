@@ -16,7 +16,9 @@ Need to install [Pygame](https://www.geeksforgeeks.org/how-to-install-pygame-in-
 
 ### Installing
 
-Can be run on Python through file
+Download program here
+
+No modifications to files needed
 
 ### Executing program
 
