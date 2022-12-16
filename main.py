@@ -74,7 +74,7 @@ class Game:
         self.star_restart = 0
         # time module/clock
         self.clock = clock
-        # living status
+        # initial living status variable
         self.alive = True
         # instantiate classes
         self.back = Back(self.all_sprites, self.sf / 1.72)
@@ -278,7 +278,6 @@ class Ground(Sprite):
         self.image.blit(self.image,(0,WIDTH))
         self.rect = self.image.get_rect(bottomleft = (0,HEIGHT))
         self.pos = pg.math.Vector2(self.rect.bottomleft)
-        # gets rid of transparent pixels in image so they cannot touch the player
         self.mask = pg.mask.from_surface(self.image)
     def update(self, delta_time):
         # determines speed of ground movement
@@ -299,7 +298,6 @@ class Star(Sprite):
         # sets x,y as center and draws image there
         self.rect = self.image.get_rect(center = (x,y))
         self.pos = pg.math.Vector2(self.rect.center)
-        # gets rid of transparent pixels in image so they cannot touch the player
         self.mask = pg.mask.from_surface(self.image)
     def update(self, delta_time):
         # speed of star
@@ -321,7 +319,6 @@ class Pwrup(Sprite):
         # sets x,y as center and draws image there
         self.rect = self.image.get_rect(center = (x,y))
         self.pos = pg.math.Vector2(self.rect.center)
-        # gets rid of transparent pixels in image so they cannot touch the player
         self.mask = pg.mask.from_surface(self.image)
     def update(self, delta_time):
         # speed of heart powerup
@@ -343,7 +340,6 @@ class Pipe_Bottom(Sprite):
         # places image on middle right bottom of screen
         self.rect = self.image.get_rect(midbottom = (x,y))
         self.pos = pg.math.Vector2(self.rect.topleft)
-        # gets rid of transparent pixels in image so they cannot touch player
         self.mask = pg.mask.from_surface(self.image)
     def update(self, delta_time):
         # speed of pipes
@@ -365,7 +361,6 @@ class Pipe_Top(Sprite):
         self.image = pg.transform.flip(scaled_image, False, True)
         self.rect = self.image.get_rect(midtop = (x,y))
         self.pos = pg.math.Vector2(self.rect.topleft)
-        # gets rid of transparent pixels in image so they cannot touch player
         self.mask = pg.mask.from_surface(self.image)
     def update(self, delta_time):
         # speed of pipes
