@@ -295,7 +295,7 @@ class Star(Sprite):
         y = HEIGHT / 2
         star_image = pg.image.load(os.path.join(img_folder, 'star.png')).convert_alpha() # loads image of star
         self.image = pg.transform.scale(star_image,pg.math.Vector2(star_image.get_size())* sf) # scales star
-        # sets x,y as center and draws image there
+        # sets x,y as center
         self.rect = self.image.get_rect(center = (x,y))
         self.pos = pg.math.Vector2(self.rect.center)
         self.mask = pg.mask.from_surface(self.image)
@@ -316,7 +316,7 @@ class Pwrup(Sprite):
         y = HEIGHT / 2
         star_image = pg.image.load(os.path.join(img_folder, 'heart.png')).convert_alpha() # loads image
         self.image = pg.transform.scale(star_image,pg.math.Vector2(star_image.get_size())* sf) # scales image
-        # sets x,y as center and draws image there
+        # sets x,y as center
         self.rect = self.image.get_rect(center = (x,y))
         self.pos = pg.math.Vector2(self.rect.center)
         self.mask = pg.mask.from_surface(self.image)
