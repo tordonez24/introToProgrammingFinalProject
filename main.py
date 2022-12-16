@@ -14,7 +14,6 @@ https://www.youtube.com/watch?v=VUFvY349ess&t=17s
 https://web.microsoftstream.com/video/b1bdbe8e-edc6-47a8-a2f9-c1aaf1b7930f
 https://stackoverflow.com/questions/29885777/how-to-make-the-background-of-a-pygame-sprite-transparent#:~:text=from%20Tkinter%20import%20%2A%20import%20pygame%20from%20livewires,the%20program%20just%20as%20in%20tkinter%20games.screen.mainloop%20%28%29
 https://stackoverflow.com/questions/35304498/what-are-the-pygame-surface-get-rect-key-arguments
-my sister cropped the images on her ipad
 https://www.pygame.org/docs/ref/mask.html#pygame.mask.from_surface
 my friend who knows pygame and python in general
 '''
