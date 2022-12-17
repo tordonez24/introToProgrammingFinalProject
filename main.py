@@ -111,6 +111,8 @@ class Game:
         # if player is dead, display play again screen and kill all sprites execept for ground and background
         if self.alive == False:
             self.display_surface.blit(self.pagain_surface, self.pagain_rect)
+            self.draw_text("Play Again: y", 22, BLACK, 105, HEIGHT / 10)
+            self.draw_text("Quit: n", 22, BLACK, 105, HEIGHT / 8)
             for sprite in self.collision_sprites.sprites():
                 sprite.kill()
             for sprite in self.star_collision_sprites.sprites():
@@ -156,7 +158,7 @@ class Game:
             if self.alive == True:
                 ticks = (pg.time.get_ticks() - self.restart)
                 TIME = ticks / 1000 # creates a time in seconds
-                stars = self.stars- self.star_restart
+                stars = self.stars - self.star_restart
             # event for loop
             for event in pg.event.get():
                 # setting different keys for jump mechanic
