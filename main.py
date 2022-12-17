@@ -208,10 +208,12 @@ class Game:
             self.collisions(delta_time)
             self.star_collisions()
             self.pwr_collisions()
-            self.draw_text("TIME: " + str(TIME) + ' SECONDS', 22, BLACK, WIDTH / 2, HEIGHT / 24) # displays time (from pygame assignment)
-            self.draw_text("STARS: " + str(stars), 22, BLACK, WIDTH / 2, HEIGHT / 14)
-            self.draw_text("LIVES: " + str(self.life), 22, BLACK, WIDTH / 2, HEIGHT / 10)
+            self.draw_text("Time: " + str(TIME) + 's', 22, BLACK, WIDTH / 2, HEIGHT / 24) # displays time (from pygame assignment)
+            self.draw_text("Stars: " + str(stars), 22, BLACK, WIDTH / 2, HEIGHT / 14)
+            self.draw_text("Lives: " + str(self.life), 22, BLACK, WIDTH / 2, HEIGHT / 10)
             self.draw_text("FPS: " + str(self.clock.tick(FPS)), 22, BLACK, WIDTH - 80, HEIGHT / 24)
+            self.draw_text("Controls: Spacebar, W,", 22, BLACK, 105, HEIGHT / 24)
+            self.draw_text("Up-Arrow, Click", 22, BLACK, 105, HEIGHT / 16)
             pg.display.update()
 
 # regular sprite with jump mechanic and gravity
