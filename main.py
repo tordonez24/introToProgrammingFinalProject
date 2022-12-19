@@ -176,8 +176,8 @@ class Game:
                 if event.type == self.pipe_timer and self.alive:
                     Pipe_Bottom([self.all_sprites, self.collision_sprites], self.sf / 4.9, self.y1)
                     Pipe_Top([self.all_sprites, self.collision_sprites], self.sf / 4.9, self.y2)
-                    chance = randint(1,4)
-                    if chance == 1: # 25% chance to spawn a star
+                    chance = randint(1,3)
+                    if chance == 1: # 33% chance to spawn a star
                         Star([self.all_sprites, self.star_collision_sprites], self.sf / 10)
                     chance1 = randint(1,12) # 8% chance to spawn an extra life
                     if chance1 == 1:
